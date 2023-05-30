@@ -23,7 +23,7 @@ You must specify an identifier and name for the view. You can contribute to foll
 - `debug`: Debug view in the Side bar
 - `scm`: Source Control Management view in the Side bar
 
-When the user opens the view, VS Code will then emit an activationEvent `onView:${viewId}` (e.g. `onView:nodeDependencies` for the example below). You can also control the visibility of the view by providing the `when` context value.
+When the user opens the view, VS Code will then emit an activationEvent `onView:${viewId}` (e.g. `onView:featureDesigns` for the example below). You can also control the visibility of the view by providing the `when` context value.
 
 Following, in the views object, you can then add a field with the same string as the `id` in the `viewsContainers`.
 
@@ -32,8 +32,8 @@ Following, in the views object, you can then add a field with the same string as
     "viewsContainers": {
         "activitybar": [
             {
-                "id": "package-explorer",
-                "title": "Package Explorer",
+                "id": "solo-explorer",
+                "title": "Solo Explorer",
                 "icon": "media/dep.svg"
             }
         ]
@@ -41,7 +41,7 @@ Following, in the views object, you can then add a field with the same string as
     "views": {
         "tree-view": [
             {
-                "id": "nodeDependencies",
+                "id": "featureDesigns",
                 "name": "Node Dependencies",
                 "when": "workspaceHasPackageJSON"
             }
@@ -65,7 +65,7 @@ Examples:
 "contributes": {
     "commands": [
         {
-            "command": "nodeDependencies.refreshEntry",
+            "command": "featureDesigns.refreshEntry",
             "title": "Refresh",
             "icon": {
                 "light": "resources/light/refresh.svg",
@@ -76,8 +76,8 @@ Examples:
     "menus": {
         "view/title": [
             {
-                "command": "nodeDependencies.refreshEntry",
-                "when": "view == nodeDependencies",
+                "command": "featureDesigns.refreshEntry",
+                "when": "view == featureDesigns",
                 "group": "navigation"
             }
         ]
@@ -94,8 +94,8 @@ Examples:
     "menus": {
        "view/item/context": [
            {
-                "command": "nodeDependencies.deleteEntry",
-                "when": "view == nodeDependencies && viewItem == dependency"
+                "command": "featureDesigns.deleteEntry",
+                "when": "view == featureDesigns && viewItem == dependency"
             }
         ]
     }
@@ -107,10 +107,10 @@ Examples:
 Extension writers should register a [provider](https://code.visualstudio.com/api/references/vscode-api#TreeDataProvider) programmatically to populate data in the view.
 
 ```typescript
-vscode.window.registerTreeDataProvider('nodeDependencies', new DepNodeProvider());
+vscode.window.registerTreeDataProvider('featureDesigns', new DepNodeProvider());
 ```
 
-See [nodeDependencies.ts](src/nodeDependencies.ts) for the implementation.
+See [featureDesigns.ts](src/featureDesigns.ts) for the implementation.
 
 ## TreeView
 

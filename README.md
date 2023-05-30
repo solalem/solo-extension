@@ -12,9 +12,9 @@ This sample provides following views
 - Node dependencies view
 - Ftp file explorer view
 
-Following example shows Node dependencies view in Package Explorer View container.
+Following example shows Node dependencies view in Solo Explorer View container.
 
-![Package Explorer](./resources/package-explorer.png)
+![Package Explorer](./resources/solo-explorer.png)
 
 ## VS Code API
 

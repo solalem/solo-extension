@@ -17,9 +17,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:nodeDependencies",
-		"onView:jsonOutline",
-		"onView:fileExplorer",
+		"onView:featureDesigns",
+		"onView:codeTree",
 		"onLanguage:json",
 		"onLanguage:jsonc",
 		"onCommand:testView.reveal"
@@ -29,36 +28,29 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "package-explorer",
-					"title": "Package Explorer",
+					"id": "solo-explorer",
+					"title": "Solo Explorer",
 					"icon": "media/dep.svg"
 				}
 			]
 		},
 		"views": {
-			"package-explorer": [
+			"solo-explorer": [
 				{
-					"id": "nodeDependencies",
-					"name": "Node Dependencies",
-					"icon": "media/dep.svg",
-					"contextualTitle": "Package Explorer"
-				}
-			],
-			"explorer": [
-				{
-					"id": "jsonOutline",
-					"name": "Json Outline",
-					"when": "jsonOutlineEnabled"
+					"id": "codeTree",
+					"name": "Code Tree View"
 				},
 				{
-					"id": "fileExplorer",
-					"name": "File Explorer"
+					"id": "featureDesigns",
+					"name": "Feature Designs",
+					"icon": "media/dep.svg",
+					"contextualTitle": "Feature Designs"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "nodeDependencies.refreshEntry",
+				"command": "featureDesigns.refreshEntry",
 				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -66,11 +58,11 @@
 				}
 			},
 			{
-				"command": "nodeDependencies.addEntry",
+				"command": "featureDesigns.addEntry",
 				"title": "Add"
 			},
 			{
-				"command": "nodeDependencies.editEntry",
+				"command": "featureDesigns.editEntry",
 				"title": "Edit",
 				"icon": {
 					"light": "resources/light/edit.svg",
@@ -78,11 +70,11 @@
 				}
 			},
 			{
-				"command": "nodeDependencies.deleteEntry",
+				"command": "featureDesigns.deleteEntry",
 				"title": "Delete"
 			},
 			{
-				"command": "jsonOutline.refresh",
+				"command": "codeTree.refreshFile",
 				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -90,102 +82,53 @@
 				}
 			},
 			{
-				"command": "jsonOutline.refreshNode",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/light/refresh.svg",
-					"dark": "resources/dark/refresh.svg"
-				}
-			},
-			{
-				"command": "jsonOutline.renameNode",
-				"title": "Rename"
-			},
-			{
-				"command": "fileExplorer.refreshFile",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/light/refresh.svg",
-					"dark": "resources/dark/refresh.svg"
-				}
-			},
-			{
-				"command": "fileExplorer.openFile",
+				"command": "codeTree.openFile",
 				"title": "Open File"
 			},
 			{
-				"command": "fileExplorer.changeTitle",
+				"command": "codeTree.changeTitle",
 				"title": "Change Title"
 			}
 		],
 		"menus": {
 			"commandPalette": [
 				{
-					"command": "fileExplorer.revealResource"
+					"command": "codeTree.revealResource"
 				}
 			],
 			"view/title": [
 				{
-					"command": "nodeDependencies.refreshEntry",
-					"when": "view == nodeDependencies",
+					"command": "featureDesigns.refreshEntry",
+					"when": "view == featureDesigns",
 					"group": "navigation"
 				},
 				{
-					"command": "jsonOutline.renameNode",
-					"when": "view == jsonOutline"
+					"command": "featureDesigns.addEntry",
+					"when": "view == featureDesigns"
 				},
 				{
-					"command": "nodeDependencies.addEntry",
-					"when": "view == nodeDependencies"
-				},
-				{
-					"command": "jsonOutline.refresh",
-					"when": "view == jsonOutline",
-					"group": "navigation"
-				},
-				{
-					"command": "fileExplorer.refresh",
-					"when": "view == fileExplorer",
+					"command": "codeTree.refresh",
+					"when": "view == codeTree",
 					"group": "navigation"
 				}
 			],
 			"view/item/context": [
 				{
-					"command": "nodeDependencies.editEntry",
-					"when": "view == nodeDependencies && viewItem == dependency",
+					"command": "featureDesigns.editEntry",
+					"when": "view == featureDesigns && viewItem == dependency",
 					"group": "inline"
 				},
 				{
-					"command": "nodeDependencies.deleteEntry",
-					"when": "view == nodeDependencies && viewItem == dependency"
+					"command": "featureDesigns.deleteEntry",
+					"when": "view == featureDesigns && viewItem == dependency"
 				},
 				{
-					"command": "jsonOutline.renameNode",
-					"when": "view == jsonOutline"
-				},
-				{
-					"command": "jsonOutline.refreshNode",
-					"when": "view == jsonOutline",
-					"group": "inline"
-				},
-				{
-					"command": "fileExplorer.refreshFile",
-					"when": "view == fileExplorer && viewItem == file",
+					"command": "codeTree.refreshFile",
+					"when": "view == codeTree && viewItem == file",
 					"group": "inline"
 				}
 			]
-		},
-		"configuration": [
-			{
-				"title": "JSON Outline",
-				"properties": {
-					"jsonOutline.autorefresh": {
-						"type": "boolean",
-						"default": false
-					}
-				}
-			}
-		]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
