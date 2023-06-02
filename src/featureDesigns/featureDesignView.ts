@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { FeatureDesign } from './featureDesign';
 
-export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
+export class FeatureDesignView implements vscode.TreeDataProvider<FeatureDesign> {
 
-	private _onDidChangeTreeData: vscode.EventEmitter<Dependency | undefined | void> = new vscode.EventEmitter<Dependency | undefined | void>();
-	readonly onDidChangeTreeData: vscode.Event<Dependency | undefined | void> = this._onDidChangeTreeData.event;
+	private _onDidChangeTreeData: vscode.EventEmitter<FeatureDesign | undefined | void> = new vscode.EventEmitter<FeatureDesign | undefined | void>();
+	readonly onDidChangeTreeData: vscode.Event<FeatureDesign | undefined | void> = this._onDidChangeTreeData.event;
 
 	constructor(private workspaceRoot: string | undefined) {
 	}
@@ -14,11 +15,11 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 		this._onDidChangeTreeData.fire();
 	}
 
-	getTreeItem(element: Dependency): vscode.TreeItem {
+	getTreeItem(element: FeatureDesign): vscode.TreeItem {
 		return element;
 	}
 
-	getChildren(element?: Dependency): Thenable<Dependency[]> {
+	getChildren(element?: FeatureDesign): Thenable<FeatureDesign[]> {
 		if (!this.workspaceRoot) {
 			vscode.window.showInformationMessage('No dependency in empty workspace');
 			return Promise.resolve([]);
@@ -41,16 +42,16 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 	/**
 	 * Given the path to package.json, read all its dependencies and devDependencies.
 	 */
-	private getDepsInPackageJson(packageJsonPath: string): Dependency[] {
+	private getDepsInPackageJson(packageJsonPath: string): FeatureDesign[] {
 		const workspaceRoot = this.workspaceRoot;
 		if (this.pathExists(packageJsonPath) && workspaceRoot) {
 			const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 
-			const toDep = (moduleName: string, version: string): Dependency => {
+			const toDep = (moduleName: string, version: string): FeatureDesign => {
 				if (this.pathExists(path.join(workspaceRoot, 'node_modules', moduleName))) {
-					return new Dependency(moduleName, version, vscode.TreeItemCollapsibleState.Collapsed);
+					return new FeatureDesign(moduleName, version, vscode.TreeItemCollapsibleState.Collapsed);
 				} else {
-					return new Dependency(moduleName, version, vscode.TreeItemCollapsibleState.None, {
+					return new FeatureDesign(moduleName, version, vscode.TreeItemCollapsibleState.None, {
 						command: 'extension.openPackageOnNpm',
 						title: '',
 						arguments: [moduleName]
@@ -79,26 +80,4 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 
 		return true;
 	}
-}
-
-export class Dependency extends vscode.TreeItem {
-
-	constructor(
-		public readonly label: string,
-		private readonly version: string,
-		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-		public readonly command?: vscode.Command
-	) {
-		super(label, collapsibleState);
-
-		this.tooltip = `${this.label}-${this.version}`;
-		this.description = this.version;
-	}
-
-	iconPath = {
-		light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-		dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
-	};
-
-	contextValue = 'dependency';
 }
