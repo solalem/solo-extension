@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { FileStat } from './fileStat';
-import { _ } from './fileUtilities';
+import { FileStat } from '../fileSystem/fileStat';
+import { _ } from '../fileSystem/fileUtilities';
 
 interface Entry {
 	uri: vscode.Uri;
@@ -11,7 +11,7 @@ interface Entry {
 
 //#endregion
 
-export class FileSystemProvider implements vscode.TreeDataProvider<Entry>, vscode.FileSystemProvider {
+export class CodeTreeProvider implements vscode.TreeDataProvider<Entry>, vscode.FileSystemProvider {
 
 	private _onDidChangeFile: vscode.EventEmitter<vscode.FileChangeEvent[]>;
 

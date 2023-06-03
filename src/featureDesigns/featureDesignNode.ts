@@ -2,10 +2,11 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 
-export class FeatureDesign extends vscode.TreeItem {
+export class FeatureDesignNode extends vscode.TreeItem {
 
 	constructor(
 		public readonly label: string,
+		public readonly type: string,
 		private readonly version: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command
@@ -21,5 +22,5 @@ export class FeatureDesign extends vscode.TreeItem {
 		dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
 	};
 
-	contextValue = 'dependency';
+	contextValue = this.type;
 }

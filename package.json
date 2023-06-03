@@ -58,6 +58,14 @@
 				}
 			},
 			{
+				"command": "featureDesigns.previewCode",
+				"title": "Preview Code",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
 				"command": "featureDesigns.addEntry",
 				"title": "Add"
 			},

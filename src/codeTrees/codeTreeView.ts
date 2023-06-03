@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { FileSystemProvider } from './fileSystemProvider';
+import { CodeTreeProvider } from './codeTreeProvider';
 
 export class CodeTreeView {
 	constructor(context: vscode.ExtensionContext) {
-		const treeDataProvider = new FileSystemProvider();
+		const treeDataProvider = new CodeTreeProvider();
 		context.subscriptions.push(vscode.window.createTreeView('codeTree', { treeDataProvider }));
 		vscode.commands.registerCommand('codeTree.openFile', (resource) => this.openResource(resource));
 	}

@@ -1,83 +1,23 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import { FeatureDesign } from './featureDesign';
+import { FeatureDesignsProvider } from './featureDesignsProvider';
+import { FeatureDesignNode } from './featureDesignNode';
 
-export class FeatureDesignView implements vscode.TreeDataProvider<FeatureDesign> {
-
-	private _onDidChangeTreeData: vscode.EventEmitter<FeatureDesign | undefined | void> = new vscode.EventEmitter<FeatureDesign | undefined | void>();
-	readonly onDidChangeTreeData: vscode.Event<FeatureDesign | undefined | void> = this._onDidChangeTreeData.event;
-
-	constructor(private workspaceRoot: string | undefined) {
+export class FeatureDesignView {
+	constructor(context: vscode.ExtensionContext) {
+		const treeDataProvider = new FeatureDesignsProvider();
+		context.subscriptions.push(vscode.window.createTreeView('featureDesigns', { treeDataProvider }));
+		vscode.commands.registerCommand('featureDesigns.openFile', (resource) => this.openResource(resource));
+		//const featureDesignsProvider = new FeatureDesignView(rootPath);
+		//vscode.window.registerTreeDataProvider('featureDesigns', featureDesignsProvider);
+		vscode.commands.registerCommand('featureDesigns.refreshEntry', () => treeDataProvider.refresh());
+		vscode.commands.registerCommand('featureDesigns.addEntry', () => vscode.window.showInformationMessage(`Successfully called add entry.`));
+		vscode.commands.registerCommand('featureDesigns.editEntry', (node: FeatureDesignNode) => vscode.window.showInformationMessage(`Successfully called edit entry on ${node.label}.`));
+		vscode.commands.registerCommand('featureDesigns.deleteEntry', (node: FeatureDesignNode) => vscode.window.showInformationMessage(`Successfully called delete entry on ${node.label}.`));
+		vscode.commands.registerCommand('extension.openPackageOnNpm', moduleName => vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(`https://www.npmjs.com/package/${moduleName}`)));
+	
 	}
 
-	refresh(): void {
-		this._onDidChangeTreeData.fire();
-	}
-
-	getTreeItem(element: FeatureDesign): vscode.TreeItem {
-		return element;
-	}
-
-	getChildren(element?: FeatureDesign): Thenable<FeatureDesign[]> {
-		if (!this.workspaceRoot) {
-			vscode.window.showInformationMessage('No dependency in empty workspace');
-			return Promise.resolve([]);
-		}
-
-		if (element) {
-			return Promise.resolve(this.getDepsInPackageJson(path.join(this.workspaceRoot, 'node_modules', element.label, 'package.json')));
-		} else {
-			const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
-			if (this.pathExists(packageJsonPath)) {
-				return Promise.resolve(this.getDepsInPackageJson(packageJsonPath));
-			} else {
-				vscode.window.showInformationMessage('Workspace has no package.json');
-				return Promise.resolve([]);
-			}
-		}
-
-	}
-
-	/**
-	 * Given the path to package.json, read all its dependencies and devDependencies.
-	 */
-	private getDepsInPackageJson(packageJsonPath: string): FeatureDesign[] {
-		const workspaceRoot = this.workspaceRoot;
-		if (this.pathExists(packageJsonPath) && workspaceRoot) {
-			const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-
-			const toDep = (moduleName: string, version: string): FeatureDesign => {
-				if (this.pathExists(path.join(workspaceRoot, 'node_modules', moduleName))) {
-					return new FeatureDesign(moduleName, version, vscode.TreeItemCollapsibleState.Collapsed);
-				} else {
-					return new FeatureDesign(moduleName, version, vscode.TreeItemCollapsibleState.None, {
-						command: 'extension.openPackageOnNpm',
-						title: '',
-						arguments: [moduleName]
-					});
-				}
-			};
-
-			const deps = packageJson.dependencies
-				? Object.keys(packageJson.dependencies).map(dep => toDep(dep, packageJson.dependencies[dep]))
-				: [];
-			const devDeps = packageJson.devDependencies
-				? Object.keys(packageJson.devDependencies).map(dep => toDep(dep, packageJson.devDependencies[dep]))
-				: [];
-			return deps.concat(devDeps);
-		} else {
-			return [];
-		}
-	}
-
-	private pathExists(p: string): boolean {
-		try {
-			fs.accessSync(p);
-		} catch (err) {
-			return false;
-		}
-
-		return true;
+	private openResource(resource: vscode.Uri): void {
+		vscode.window.showTextDocument(resource);
 	}
 }
