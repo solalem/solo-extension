@@ -1,20 +1,19 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-
-export class FeatureDesignNode extends vscode.TreeItem {
+export class CodeTreeNode extends vscode.TreeItem {
 
 	constructor(
 		public readonly label: string,
+		public readonly uri: vscode.Uri,
 		public readonly type: vscode.FileType,
-		private readonly version: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command
 	) {
 		super(label, collapsibleState);
 
-		this.tooltip = `${this.label}-${this.version}`;
-		this.description = this.version;
+		this.tooltip = `${this.label}-${this.type}`;
+		this.description = this.label;
 	}
 
 	iconPath = {

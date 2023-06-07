@@ -3,15 +3,11 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { FileStat } from '../fileSystem/fileStat';
 import { _ } from '../fileSystem/fileUtilities';
-
-interface Entry {
-	uri: vscode.Uri;
-	type: vscode.FileType;
-}
+import { CodeTreeNode } from './codeTreeNode';
 
 //#endregion
 
-export class CodeTreeProvider implements vscode.TreeDataProvider<Entry>, vscode.FileSystemProvider {
+export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode>, vscode.FileSystemProvider {
 
 	private _onDidChangeFile: vscode.EventEmitter<vscode.FileChangeEvent[]>;
 
@@ -124,10 +120,10 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<Entry>, vscode.
 
 	// tree data provider
 
-	async getChildren(element?: Entry): Promise<Entry[]> {
+	async getChildren(element?: CodeTreeNode): Promise<CodeTreeNode[]> {
 		if (element) {
 			const children = await this.readDirectory(element.uri);
-			return children.map(([name, type]) => ({ uri: vscode.Uri.file(path.join(element.uri.fsPath, name)), type }));
+			return children.map(([name, type]) => new CodeTreeNode(name, vscode.Uri.file(path.join(element.uri.fsPath, name)), type, vscode.TreeItemCollapsibleState.Collapsed));
 		}
 
 		const workspaceFolder = (vscode.workspace.workspaceFolders ?? []).filter(folder => folder.uri.scheme === 'file')[0];
@@ -139,16 +135,16 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<Entry>, vscode.
 				}
 				return a[1] === vscode.FileType.Directory ? -1 : 1;
 			});
-			return children.map(([name, type]) => ({ uri: vscode.Uri.file(path.join(workspaceFolder.uri.fsPath, name)), type }));
+			return children.map(([name, type]) => new CodeTreeNode(name, vscode.Uri.file(path.join(workspaceFolder.uri.fsPath, name)), type, vscode.TreeItemCollapsibleState.Expanded));
 		}
 
 		return [];
 	}
 
-	getTreeItem(element: Entry): vscode.TreeItem {
+	getTreeItem(element: CodeTreeNode): vscode.TreeItem {
 		const treeItem = new vscode.TreeItem(element.uri, element.type === vscode.FileType.Directory ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
 		if (element.type === vscode.FileType.File) {
-			treeItem.command = { command: 'codeTree.openFile', title: "Open File", arguments: [element.uri], };
+			treeItem.command = { command: 'codeTree.previewFile', title: "Preview File", arguments: [element.uri], };
 			treeItem.contextValue = 'file';
 		}
 		return treeItem;

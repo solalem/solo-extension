@@ -82,16 +82,20 @@
 				"title": "Delete"
 			},
 			{
+				"command": "codeTree.refresh",
+				"title": "Refresh"
+			},
+			{
 				"command": "codeTree.refreshFile",
-				"title": "Refresh",
+				"title": "Refresh File",
 				"icon": {
 					"light": "resources/light/refresh.svg",
 					"dark": "resources/dark/refresh.svg"
 				}
 			},
 			{
-				"command": "codeTree.openFile",
-				"title": "Open File"
+				"command": "codeTree.previewFile",
+				"title": "Preview File"
 			},
 			{
 				"command": "codeTree.changeTitle",
@@ -101,7 +105,7 @@
 		"menus": {
 			"commandPalette": [
 				{
-					"command": "codeTree.revealResource"
+					"command": "codeTree.previewFile"
 				}
 			],
 			"view/title": [
@@ -136,7 +140,25 @@
 					"group": "inline"
 				}
 			]
-		}
+		},
+		"configuration": [
+		  {
+			"title": "JSON Tree View",
+			"properties": {
+			  "jsonTreeView.autorefresh": {
+				"type": "boolean",
+				"default": true
+			  },
+			  "jsonTreeView.customizedViewActivated": {
+				"type": "boolean",
+				"default": true
+			  },
+			  "jsonTreeView.customizedViewMapping": {
+				"type": "object"
+			  }
+			}
+		  }
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

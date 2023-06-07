@@ -41,7 +41,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		} else {
 			var files = await this.readDirectory(soloPath);
 			return files.map(([name, type]) => (
-				new FeatureDesignNode(name, "design", "version", vscode.TreeItemCollapsibleState.Collapsed)
+				new FeatureDesignNode(name, vscode.FileType.Directory, "version", vscode.TreeItemCollapsibleState.Collapsed)
 			));
 		}
 
@@ -58,7 +58,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			const designJson = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
 
 			return designJson.items.map((i: { name: string; }) => 
-				new FeatureDesignNode(i.name, "item", "version", vscode.TreeItemCollapsibleState.Collapsed));
+				new FeatureDesignNode(i.name, vscode.FileType.File, "version", vscode.TreeItemCollapsibleState.Collapsed));
 		} else {
 			return [];
 		}
