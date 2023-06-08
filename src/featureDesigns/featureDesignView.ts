@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import { FeatureDesignsProvider } from './featureDesignsProvider';
 import { FeatureDesignNode } from './featureDesignNode';
+import { FeatureDesignRepository } from './featureDesignRepository';
+import { FeatureDesignsProvider } from './featureDesignsProvider';
 
 export class FeatureDesignView {
 	constructor(context: vscode.ExtensionContext) {
-		const treeDataProvider = new FeatureDesignsProvider();
+		const treeDataProvider = new FeatureDesignsProvider(context, new FeatureDesignRepository());
 		context.subscriptions.push(vscode.window.createTreeView('featureDesigns', { treeDataProvider }));
 		vscode.commands.registerCommand('featureDesigns.openFile', (resource) => this.openResource(resource));
 		//const featureDesignsProvider = new FeatureDesignView(rootPath);
