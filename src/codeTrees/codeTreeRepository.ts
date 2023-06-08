@@ -3,11 +3,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { FileStat } from '../fileSystem/fileStat';
 import { _ } from '../fileSystem/fileUtilities';
+import { CodeTree } from './models';
 //import * as json from "jsonc-parser";
 
 export class CodeTreeRepository {
 
-	public async getCodeTree(): Promise<string | undefined> {
+	public async getCodeTree(): Promise<CodeTree | undefined> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		if (!workspaceRoot) {
@@ -23,8 +24,9 @@ export class CodeTreeRepository {
 		var file = path.join(soloPath, "scaffold.json");
 
 		if (this.pathExists(file) && workspaceRoot) {
-			const designJson = fs.readFileSync(file, 'utf-8');
-			return Promise.resolve(designJson);
+			var codeTree: CodeTree = JSON.parse(fs.readFileSync(file, 'utf-8'));
+
+			return Promise.resolve(codeTree);
 		} else {
 			return Promise.resolve(undefined);
 		}

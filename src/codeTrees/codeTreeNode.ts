@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { CodeTree, CodeTreeItem } from './models';
 
 export class CodeTreeNode extends vscode.TreeItem {
 
 	constructor(
 		public readonly label: string,
-		public readonly uri: vscode.Uri,
-		public readonly type: vscode.FileType,
+		public readonly type: string,
+		public readonly tag: CodeTreeItem | CodeTree,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command
 	) {

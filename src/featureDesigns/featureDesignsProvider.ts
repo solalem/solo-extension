@@ -1,4 +1,4 @@
-// Copied from
+// Base from
 // https://github.com/ChaunceyKiwi/json-tree-view/blob/master/src/extension.ts
 import * as json from "jsonc-parser";
 import * as path from "path";

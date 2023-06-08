@@ -1,14 +1,15 @@
-// Copied from
-// https://github.com/ChaunceyKiwi/json-tree-view/blob/master/src/extension.ts
 import * as json from "jsonc-parser";
 import * as path from "path";
 import * as vscode from "vscode";
 import { CodeTreeRepository } from "./codeTreeRepository";
+import { CodeTreeNode } from "./codeTreeNode";
+import { CodeTree } from "./models";
 
-export class CodeTreeProvider implements vscode.TreeDataProvider<number> {
-	private _onDidChangeTreeData: vscode.EventEmitter<number | null> = new vscode.EventEmitter<number | null>();
-	readonly onDidChangeTreeData: vscode.Event<number | null> = this._onDidChangeTreeData.event;
+export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
+	private _onDidChangeTreeData: vscode.EventEmitter<CodeTreeNode | null> = new vscode.EventEmitter<CodeTreeNode | null>();
+	readonly onDidChangeTreeData: vscode.Event<CodeTreeNode | null> = this._onDidChangeTreeData.event;
 
+	private codeTree: CodeTree | undefined;
 	private tree: json.Node;// | undefined;
 	private text: string;
 
@@ -17,7 +18,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<number> {
 		this.tree = { offset: 0, length: 0, type: 'null' };// TODO: check default
 	}
 
-	refresh(offset?: number): void {
+	refresh(offset?: CodeTreeNode): void {
 		// TODO: reload
 		if (offset) {
 			this._onDidChangeTreeData.fire(offset);
@@ -26,57 +27,74 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<number> {
 		}
 	}
 
-	async getChildren(offset?: number): Promise<number[]> {
-		if (offset && this.tree) {
-			const path = json.getLocation(this.text, offset).path;
-			const node = json.findNodeAtLocation(this.tree, path);
-			return Promise.resolve(this.getChildrenOffsets(node));
+	async getChildren(codeTreeNode?: CodeTreeNode): Promise<CodeTreeNode[]> {
+		if (codeTreeNode && this.tree) {
+			// const path = json.getLocation(this.text, offset).path;
+			// const node = json.findNodeAtLocation(this.tree, path);
+			// return Promise.resolve(this.getChildrenOffsets(node));
+			if (!codeTreeNode || !codeTreeNode.tag.children) 
+				return [];
+
+			return codeTreeNode.tag.children.map((i) => (
+				new CodeTreeNode(
+					i.name, 
+					i.type,
+					i,
+					vscode.TreeItemCollapsibleState.Collapsed)
+			));
 		} else {
-			this.text = await this.repository.getCodeTree()?? "";
-			this.tree = json.parseTree(this.text);
-			return this.tree ? this.getChildrenOffsets(this.tree) : [];
+			this.codeTree = await this.repository.getCodeTree();
+			//this.tree = json.parseTree(this.text);
+			if (!this.codeTree || !this.codeTree.children) 
+				return [];
+
+			return this.codeTree.children.map((i) => (
+				new CodeTreeNode(
+					i.name, 
+					i.type,
+					i,
+					vscode.TreeItemCollapsibleState.Collapsed)
+			));
+			//return this.tree ? this.getChildrenOffsets(this.tree) : [];
 		}
 	}
 
-	private getChildrenOffsets(node: json.Node): number[] {
-		const offsets: number[] = [];
-		if(!node || !node.children) 
-			return offsets;
-
-		for (const child of node.children) {
-			const childPath = json.getLocation(this.text, child.offset).path;
-			const childNode = json.findNodeAtLocation(this.tree, childPath);
-			if (childNode) {
-				offsets.push(childNode.offset);
-			}
-		}
-		return offsets;
-	}
-
-	getTreeItem(offset: number): vscode.TreeItem {
+	getTreeItem(codeTreeNode: CodeTreeNode): vscode.TreeItem {
 		const notFound: vscode.TreeItem = {};
 
-		const path = json.getLocation(this.text, offset).path;
-		const valueNode = json.findNodeAtLocation(this.tree, path);
-		if (valueNode) {
-			let hasChildren =
-				valueNode.type === "object" || valueNode.type === "array";
+		// const path = json.getLocation(this.text, offset).path;
+		// const valueNode = json.findNodeAtLocation(this.tree, path);
+		if (codeTreeNode) {
+			// let hasChildren =
+			// 	valueNode.type === "object" || valueNode.type === "array";
 			let treeItem: vscode.TreeItem = new vscode.TreeItem(
-				valueNode.value,
-				hasChildren
+				codeTreeNode.label,
+				codeTreeNode.type === 'folder'
 					? vscode.TreeItemCollapsibleState.Collapsed
 					: vscode.TreeItemCollapsibleState.None
 			);
 			
-			treeItem.iconPath = this.getIcon(valueNode);
-			treeItem.contextValue = valueNode.type;
+			treeItem.iconPath = this.getIcon(codeTreeNode);
+			treeItem.contextValue = codeTreeNode.type;
 			return treeItem;
 		}
 		return notFound;
 	}
 
-	private getIcon(node: json.Node): any {
+	private getIcon(node: CodeTreeNode): any {
 		let nodeType = node.type;
+        if (nodeType === "folder") {
+            return {
+                light: this.context.asAbsolutePath(path.join("resources", "light", "folder.svg")),
+                dark: this.context.asAbsolutePath(path.join("resources", "dark", "folder.svg"))
+            };
+        }
+        if (nodeType === "file") {
+            return {
+                light: this.context.asAbsolutePath(path.join("resources", "light", "document.svg")),
+                dark: this.context.asAbsolutePath(path.join("resources", "dark", "document.svg"))
+            };
+        }
 		if (nodeType === "boolean") {
 			return {
 				light: this.context.asAbsolutePath(
