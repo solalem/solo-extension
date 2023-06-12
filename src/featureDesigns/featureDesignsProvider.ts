@@ -13,158 +13,141 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	readonly onDidChangeTreeData: vscode.Event<FeatureDesignNode | null> = this._onDidChangeTreeData.event;
 
 	private designs: FeatureDesign[] = [];
-	private currentDesign: FeatureDesign |undefined;
-	
-	private tree: json.Node;
+	//private currentDesign: FeatureDesign |undefined;
+	//private currentJsonTree: json.Node;
 	private text: string;
-	private editor: vscode.TextEditor | undefined;
-	private autoRefresh: boolean;
+	//private editor: vscode.TextEditor | undefined;
+	//private autoRefresh: boolean;
 	private error_paths: (string | number)[][] = [];
 
 	constructor(
 		private context: vscode.ExtensionContext,
 		private repository: FeatureDesignRepository) {
 		this.text = "";
-		this.editor = vscode.window.activeTextEditor;
-		this.autoRefresh = true;
-		this.tree = { offset: 0, length: 0, type: 'null' };// TODO: check default
-		
-		vscode.window.onDidChangeActiveTextEditor(() =>
-			this.onActiveEditorChanged()
-		);
+		//this.editor = vscode.window.activeTextEditor;
+		//this.autoRefresh = true;
+		//this.currentJsonTree = { offset: 0, length: 0, type: 'null' };// TODO: check default
+
 		vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
-		vscode.workspace.onDidSaveTextDocument(() => this.onDocumentSaved());
-		vscode.workspace.onDidChangeConfiguration(() => {
-			this.autoRefresh = vscode.workspace
-				.getConfiguration("jsonTreeView")
-				.get("autorefresh") ?? true;
-		});
-		this.onActiveEditorChanged();
+		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
+		// vscode.workspace.onDidChangeConfiguration(() => {
+		// 	this.autoRefresh = vscode.workspace
+		// 		.getConfiguration("jsonTreeView")
+		// 		.get("autorefresh") ?? true;
+		// });
 	}
 
-	refresh(offset?: FeatureDesignNode): void {
+	refresh(documentText?: string, featureDesignNode?: FeatureDesignNode): void {
 		this.updateErrorPath();
-		this.parseTree();
-		if (offset) {
-			this._onDidChangeTreeData.fire(offset);
+		const tree = this.parseTree(documentText); 
+
+		if (featureDesignNode) {
+			this._onDidChangeTreeData.fire(featureDesignNode);
 		} else {
 			this._onDidChangeTreeData.fire(null);// TODO: check
 		}
 	}
 
-	reveal(node: FeatureDesignNode): void {
-		if(!this.editor || !node.jsonOffset) return;
+	// reveal(node: FeatureDesignNode): void {
+	// 	const editor = vscode.window.activeTextEditor;
+	// 	if(!editor || !node.jsonOffset) return;
 
-		const path = json.getLocation(this.text, node.jsonOffset).path;
-		let propertyNode = json.findNodeAtLocation(this.tree, path);
-		const range = new vscode.Range(
-			this.editor.document.positionAt(propertyNode.offset),
-			this.editor.document.positionAt(propertyNode.offset + propertyNode.length)
-		);
+	// 	const path = json.getLocation(this.text, node.jsonOffset).path;
+	// 	let propertyNode = json.findNodeAtLocation(this.currentJsonTree, path);
+	// 	const range = new vscode.Range(
+	// 		editor.document.positionAt(propertyNode.offset),
+	// 		editor.document.positionAt(propertyNode.offset + propertyNode.length)
+	// 	);
 
-		this.editor.selection = new vscode.Selection(range.start, range.end);
+	// 	editor.selection = new vscode.Selection(range.start, range.end);
 
-		// Center the method in the document
-		this.editor.revealRange(range);
+	// 	// Center the method in the document
+	// 	editor.revealRange(range);
+		
+	// 	// Swap the focus to the editor
+	// 	vscode.window.showTextDocument(
+	// 		editor.document,
+	// 		editor.viewColumn,
+	// 		false
+	// 	);
+	// }
 
-		// Swap the focus to the editor
-		vscode.window.showTextDocument(
-			this.editor.document,
-			this.editor.viewColumn,
-			false
-		);
-	}
+	// revealWithKey(node: FeatureDesignNode): void {
+	// 	const editor = vscode.window.activeTextEditor;
+	// 	if(!editor || !node.jsonOffset) return;
 
-	revealWithKey(node: FeatureDesignNode): void {
-		if(!this.editor || !node.jsonOffset) return;
-	
-		const path = json.getLocation(this.text, node.jsonOffset).path;
-		let propertyNode = json.findNodeAtLocation(this.tree, path);
+	// 	const path = json.getLocation(this.text, node.jsonOffset).path;
+	// 	let propertyNode = json.findNodeAtLocation(this.currentJsonTree, path);
 
-		let inverseOffset = 0;
-		if (propertyNode.parent?.type !== "array" && propertyNode.parent?.children) {
-			let parentKeyLength = propertyNode.parent.children[0].value.length;
-			inverseOffset = parentKeyLength + 4; // including 2("), 1(:), and 1 space
-		}
+	// 	let inverseOffset = 0;
+	// 	if (propertyNode.parent?.type !== "array" && propertyNode.parent?.children) {
+	// 		let parentKeyLength = propertyNode.parent.children[0].value.length;
+	// 		inverseOffset = parentKeyLength + 4; // including 2("), 1(:), and 1 space
+	// 	}
 
-		const range = new vscode.Range(
-			this.editor.document.positionAt(propertyNode.offset - inverseOffset),
-			this.editor.document.positionAt(propertyNode.offset + propertyNode.length)
-		);
+	// 	const range = new vscode.Range(
+	// 		editor.document.positionAt(propertyNode.offset - inverseOffset),
+	// 		editor.document.positionAt(propertyNode.offset + propertyNode.length)
+	// 	);
 
-		this.editor.selection = new vscode.Selection(range.start, range.end);
+	// 	editor.selection = new vscode.Selection(range.start, range.end);
 
-		if (propertyNode.type !== "object") {
-			// Center the method in the document
-			this.editor.revealRange(range);
-		}
+	// 	if (propertyNode.type !== "object") {
+	// 		// Center the method in the document
+	// 		editor.revealRange(range);
+	// 	}
 
-		// Swap the focus to the editor
-		vscode.window.showTextDocument(
-			this.editor.document,
-			this.editor.viewColumn,
-			false
-		);
-	}
-
-	private onActiveEditorChanged(): void {
-		if (vscode.window.activeTextEditor) {
-			if (vscode.window.activeTextEditor.document.uri.scheme === "file") {
-				const enabled =
-					vscode.window.activeTextEditor.document.languageId === "json" ||
-					vscode.window.activeTextEditor.document.languageId === "jsonc";
-				vscode.commands.executeCommand(
-					"setContext",
-					"jsonTreeViewEnabled",
-					enabled
-				);
-				if (enabled) {
-					this.refresh();
-				}
-			}
-		} else {
-			vscode.commands.executeCommand(
-				"setContext",
-				"jsonTreeViewEnabled",
-				false
-			);
-		}
-	}
+	// 	// Swap the focus to the editor
+	// 	vscode.window.showTextDocument(
+	// 		editor.document,
+	// 		editor.viewColumn,
+	// 		false
+	// 	);
+	// }
 
 	private onDocumentChanged(changeEvent: vscode.TextDocumentChangeEvent): void {
-		if (
-			this.autoRefresh &&
-			this.editor &&
-			changeEvent.document.uri.toString() ===
-			this.editor.document.uri.toString()
-		) {
+		//if (
+			//this.autoRefresh &&
+			//this.editor &&
+		//	changeEvent.document.uri.fsPath === this.currentDesign?.fsPath
+		//) {
+		
+		const currentDesign = this.designs.find(x => x.fsPath === changeEvent.document.uri.fsPath);
+		if(currentDesign) {
+			const tree = this.parseTree(changeEvent.document.getText());
+			currentDesign.tree = tree;
+
+			// TODO: later
 			for (const change of changeEvent.contentChanges) {
 				const path = json.getLocation(
 					this.text,
-					this.editor.document.offsetAt(change.range.start)
+					changeEvent.document.offsetAt(change.range.start)
 				).path;
 				path.pop();
 				const node = path.length
-					? json.findNodeAtLocation(this.tree, path)
+					? json.findNodeAtLocation(tree, path)
 					: void 0;
-				this.parseTree();
+				//this.parseTree(changeEvent.document.getText());
 				this._onDidChangeTreeData.fire(node ? new FeatureDesignNode("todo:", "todo:", undefined, node.offset, vscode.TreeItemCollapsibleState.None) : null);
 			}
 		}
+		//}
 	}
 
-	private onDocumentSaved(): void {
-		this.refresh();
+	private onDocumentSaved(e: vscode.TextDocument): void {
+		this.refresh(e.getText());
 	}
 
-	private parseTree(): void {
-		this.text = "";
-		this.tree = { offset: 0, length: 0, type: 'null' };
-		this.editor = vscode.window.activeTextEditor;
-		if (this.editor && this.editor.document) {
-			this.text = this.editor.document.getText();
-			this.tree = json.parseTree(this.text);
+	private parseTree(documentText: string | undefined): json.Node {
+		this.text = documentText ?? "";
+
+		if (!documentText) {
+			const editor = vscode.window.activeTextEditor;
+			if (editor && editor.document)
+				this.text = editor.document.getText();
 		}
+
+		return json.parseTree(this.text);
 	}
 
 	async getChildren(designNode?: FeatureDesignNode): Promise<FeatureDesignNode[]> {
@@ -172,44 +155,55 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			this.designs = await this.repository.getFeatureDesigns();
 			return this.designs.map((i) => (
 					new FeatureDesignNode(
-						i.name, 
+						i.name,
 						"design",
 						i.fsPath,
 						undefined,
 						vscode.TreeItemCollapsibleState.Collapsed)
 				));
 		}
-		
-		if (!this.editor || !this.editor.document) 
-			return Promise.resolve([]);
-		var path = this.editor.document.uri.fsPath;
-		if(!path.includes(".feature.json"))
-			return Promise.resolve([]);
-		this.currentDesign = this.designs.find(x => x.fsPath === path);
-		if (!this.currentDesign) {
-			return Promise.resolve([]);
-		} 
+
+		if (designNode.type === 'design') {
+			const currentDesign = this.designs.find(x => x.fsPath === designNode.jsonFilePath);
+			if (!currentDesign) {
+			 	return Promise.resolve([]);
+			}
+			const text = await this.repository.getDesignText(designNode.label);
+			const tree = this.parseTree(text);
+            currentDesign.tree = tree;
+
+			return Promise.resolve(this.getChildrenOffsets(designNode.jsonFilePath, currentDesign.tree, currentDesign.tree));
+		}
+
+		// if (!this.editor || !this.editor.document)
+		// 	return Promise.resolve([]);
+		// var path = this.editor.document.uri.fsPath;
+		// if(!path.includes(".feature.json"))
+		// 	return Promise.resolve([]);
+		const currentDesign = this.designs.find(x => x.fsPath === designNode.jsonFilePath);
+		if (!currentDesign)
+		 	return Promise.resolve([]);
 
 		if (designNode.jsonOffset) {
 			const path = json.getLocation(this.text, designNode.jsonOffset).path;
-			const node = json.findNodeAtLocation(this.tree, path);
-			return this.getChildrenOffsets(node);
+			const node = json.findNodeAtLocation(currentDesign.tree, path);
+			return this.getChildrenOffsets(designNode.jsonFilePath, currentDesign.tree, node);
 		} else {
 			return Promise.resolve(
-				this.tree ? this.getChildrenOffsets(this.tree) : []
+				currentDesign.tree ? this.getChildrenOffsets(currentDesign?.fsPath, currentDesign.tree, currentDesign.tree) : []
 			);
 		}
 	}
 
-	private getChildrenOffsets(node: json.Node): FeatureDesignNode[] {
+	private getChildrenOffsets(parentFsPath: string | undefined, tree: json.Node, node: json.Node): FeatureDesignNode[] {
 		const offsets: FeatureDesignNode[] = [];
-		if(!node || !node.children) 
+		if(!node || !node.children)
 			return offsets;
 		for (const child of node.children) {
 			const childPath = json.getLocation(this.text, child.offset).path;
-			const childNode = json.findNodeAtLocation(this.tree, childPath);
+			const childNode = json.findNodeAtLocation(tree, childPath);
 			if (childNode) {
-				offsets.push(new FeatureDesignNode("todo:name", "json", undefined, childNode.offset, vscode.TreeItemCollapsibleState.Collapsed));
+				offsets.push(new FeatureDesignNode(childNode.value, "json", parentFsPath, childNode.offset, vscode.TreeItemCollapsibleState.Collapsed));
 			}
 		}
 		return offsets;
@@ -217,7 +211,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 
 	getTreeItem(designNode: FeatureDesignNode): vscode.TreeItem {
 		const notFound: vscode.TreeItem = { label: "todo:none" };
-		if(!this.editor || !designNode) return notFound;
+		if(!designNode) return notFound;
 
 		if (designNode.jsonFilePath) {
 			let treeItem: vscode.TreeItem = new vscode.TreeItem(
@@ -229,9 +223,12 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			return treeItem;
 		}
 
-		if(!this.editor || !designNode.jsonOffset) return notFound;
+		const currentDesign = this.designs.find(x => x.fsPath === designNode.jsonFilePath);
+		if (!currentDesign) return notFound;
+
+		if(!designNode.jsonOffset) return notFound;
 		const path = json.getLocation(this.text, designNode.jsonOffset).path;
-		const valueNode = json.findNodeAtLocation(this.tree, path);
+		const valueNode = json.findNodeAtLocation(currentDesign.tree, path);
 		if (valueNode) {
 			let hasChildren =
 				valueNode.type === "object" || valueNode.type === "array";
@@ -242,14 +239,15 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 					: vscode.TreeItemCollapsibleState.None
 			);
 
-			if (!hasChildren) {
+			const editor = vscode.window.activeTextEditor;
+			if (!hasChildren && editor) {
 				treeItem.command = {
 					command: "extension.openJsonSelection",
 					title: "",
 					arguments: [
 						new vscode.Range(
-							this.editor.document.positionAt(valueNode.offset),
-							this.editor.document.positionAt(
+							editor.document.positionAt(valueNode.offset),
+							editor.document.positionAt(
 								valueNode.offset + valueNode.length
 							)
 						)
@@ -271,17 +269,18 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	}
 
 	select(range: vscode.Range) {
-		if(!this.editor) return null;
-	
-		this.editor.selection = new vscode.Selection(range.start, range.end);
+		const editor = vscode.window.activeTextEditor;
+		if(!editor) return null;
+
+		editor.selection = new vscode.Selection(range.start, range.end);
 
 		// Center the method in the document
-		this.editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+		editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
 
 		// Swap the focus to the editor
 		vscode.window.showTextDocument(
-			this.editor.document,
-			this.editor.viewColumn,
+			editor.document,
+			editor.viewColumn,
 			false
 		);
 	}
@@ -345,11 +344,10 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	}
 
 	private getLabel(node: json.Node): string {
-		if(!this.editor) return "";
 		if(!node) return "";
 
 		if (node.parent && node.parent.type === "array") {
-	
+
 			let parentKey = node.parent.parent?.children ? node.parent.parent.children[0].value.toString(): "";
 			let config = vscode.workspace.getConfiguration().jsonTreeView;
 
@@ -365,7 +363,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 					const grandChildren = node.children[i].children;
 					if (!grandChildren) return "";
 
-					if (node.children && 
+					if (node.children &&
 						grandChildren[0].value === key) {
 						return grandChildren[1].value.toString();
 					}
@@ -394,10 +392,14 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 					return property + " [" + node.children?.length + "]";
 				}
 			}
-			const value = this.editor.document.getText(
+			const editor = vscode.window.activeTextEditor;
+			if(!editor)
+				return `${property}: TODO`;
+
+			const value = editor.document.getText(
 				new vscode.Range(
-					this.editor.document.positionAt(node.offset),
-					this.editor.document.positionAt(node.offset + node.length)
+					editor.document.positionAt(node.offset),
+					editor.document.positionAt(node.offset + node.length)
 				)
 			);
 			return `${property}: ${value}`;
@@ -413,18 +415,16 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 
 		let diagnostics = vscode.languages.getDiagnostics();
 		for (let i = 0; i < diagnostics.length; i++) {
-			if (
-				diagnostics[i][0]["fsPath"] ===
-				vscode.window.activeTextEditor?.document.fileName
-			) {
+			var editor = vscode.window.activeTextEditor;
+			if (editor && diagnostics[i][0]["fsPath"] === editor.document.fileName) {
 				let error = diagnostics[i][1];
 				this.error_paths = error.map(
 					(x: any) => {
-						if(!vscode.window.activeTextEditor || !this.editor) return [];
+						if(!editor) return [];
 
 						return json.getLocation(
-							vscode.window.activeTextEditor.document.getText(),
-							this.editor.document.offsetAt(x["range"]["end"])
+							editor.document.getText(),
+							editor.document.offsetAt(x["range"]["end"])
 						).path
 					}
 				);

@@ -27,6 +27,28 @@ export class FeatureDesignRepository {
 		});
 	}
 
+	public async getDesignText(designName: string): Promise<string | undefined> {
+		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+		if (!workspaceRoot) {
+			vscode.window.showInformationMessage('Empty workspace');
+			return Promise.resolve(undefined);
+		}
+
+		const soloPath = path.join(workspaceRoot, ".solo");
+		if (!_.exists(soloPath)) {
+			vscode.window.showInformationMessage('No .solo folder');
+			return Promise.resolve(undefined);
+		}
+		var file = path.join(soloPath, designName);
+
+		if (this.pathExists(file)) {
+			return fs.readFileSync(file, 'utf-8');
+		} else {
+			return Promise.resolve(undefined);
+		}
+	}
+	
 	public async getItemsInDesign(designName: string): Promise<FeatureDesignItem[]> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
@@ -42,13 +64,13 @@ export class FeatureDesignRepository {
 		}
 		var file = path.join(soloPath, designName);
 
-		if (this.pathExists(file) && workspaceRoot) {
+		if (this.pathExists(file)) {
 			const designJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
 
 			return designJson.items.map((i: { name: string; description: string; }) => 
 				new FeatureDesignItem(i.name, i.description));
 		} else {
-			return [];
+			return Promise.resolve([]);
 		}
 	}
 	
