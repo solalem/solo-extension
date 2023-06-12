@@ -22,9 +22,17 @@ export class FeatureDesignRepository {
 		}
 
 		var files = await this.readDirectory(soloPath);
-		return files.filter(([fsPath]) => fsPath.includes(".feature.json")).map(([name, type, fsPath]) => {
-			return new FeatureDesign(name, "description", fsPath);
-		});
+		return files.filter(([fsPath]) => 
+			fsPath
+			.includes(".feature.json"))
+			.map(([name, type, fsPath]) => {
+				let design = new FeatureDesign(name, "description", fsPath, undefined);
+				this.getItemsInDesign(name)
+				.then((items) => {
+					design.items = items;
+				}); 
+				return design;
+			});
 	}
 
 	public async getDesignText(designName: string): Promise<string | undefined> {
