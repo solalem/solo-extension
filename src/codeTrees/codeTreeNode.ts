@@ -8,19 +8,34 @@ export class CodeTreeNode extends vscode.TreeItem {
 		public readonly label: string,
 		public readonly type: string,
 		public readonly tag: CodeTreeItem | CodeTree,
-		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-		public readonly command?: vscode.Command
 	) {
-		super(label, collapsibleState);
+		super(label);
 
-		this.tooltip = `${this.label}-${this.type}`;
+		this.tooltip = `${this.label} - ${this.type}`;
 		this.description = this.label;
+
+		this.collapsibleState = this.type === 'folder'
+				? vscode.TreeItemCollapsibleState.Collapsed
+				: vscode.TreeItemCollapsibleState.None
+		
+		this.iconPath = this.getIcon();
+		this.contextValue = label;
 	}
-
-	iconPath = {
-		light: path.join(__filename, '..', '..', 'resources', 'light', 'document.svg'),
-		dark: path.join(__filename, '..', '..', 'resources', 'dark', 'document.svg')
-	};
-
-	contextValue = this.label;
+	
+	getIcon(): any {
+        if (this.type === "folder") {
+            return {
+				light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
+				dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
+			};
+        }
+        if (this.type === "file") {
+            return {
+				light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'document.svg'),
+				dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'document.svg')
+			};
+        }
+		return null;
+	}
 }
+

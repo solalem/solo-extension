@@ -10,12 +10,10 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	readonly onDidChangeTreeData: vscode.Event<FeatureDesignNode | null> = this._onDidChangeTreeData.event;
 
 	private designs: FeatureDesign[] = [];
-	private text: string;
 
 	constructor(
 		private context: vscode.ExtensionContext,
 		private repository: FeatureDesignRepository) {
-		this.text = "";
 		vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
 		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
 	}
@@ -29,7 +27,8 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	}
 
 	private onDocumentChanged(changeEvent: vscode.TextDocumentChangeEvent): void {
-		const currentDesign = this.designs.find(x => x.fsPath === changeEvent.document.uri.fsPath);
+		// const currentDesign = this.designs.find(x => x.fsPath === changeEvent.document.uri.fsPath);
+		// this.refresh();
 	}
 
 	private onDocumentSaved(e: vscode.TextDocument): void {
@@ -43,13 +42,11 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 					new FeatureDesignNode(
 						i.name,
 						"design",
-						i.fsPath,
-						undefined,
-						vscode.TreeItemCollapsibleState.Collapsed)
+						i.fsPath)
 				));
 		}
 
-		const currentDesign = this.designs.find(x => x.fsPath === designNode.jsonFilePath);
+		const currentDesign = this.designs.find(x => x.fsPath === designNode.filePath);
 		if (!currentDesign|| !currentDesign.items)
 		 	return Promise.resolve([]);
 
@@ -58,9 +55,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 				new FeatureDesignNode(
 					i.name,
 					"item",
-					undefined,//currentDesign.fsPath,
-					undefined,
-					vscode.TreeItemCollapsibleState.None)
+					undefined)
 			));
 		}
 
@@ -68,28 +63,8 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	}
 
 	getTreeItem(designNode: FeatureDesignNode): vscode.TreeItem {
-		const notFound: vscode.TreeItem = { label: "todo:none" };
-		if(!designNode) return notFound;
-
-		if (designNode.jsonFilePath) {
-			let treeItem: vscode.TreeItem = new vscode.TreeItem(
-				designNode.label,
-				vscode.TreeItemCollapsibleState.Collapsed
-			);
-			treeItem.command = { command: 'featureDesigns.openFile', title: "Open File", arguments: [vscode.Uri.file(designNode.jsonFilePath)], };
-			treeItem.contextValue = 'design';
-			return treeItem;
-		}
-
-		if (designNode.type === 'item') {
-			let treeItem: vscode.TreeItem = new vscode.TreeItem(
-				designNode.label,
-				vscode.TreeItemCollapsibleState.None
-			);
-			treeItem.contextValue = 'item';
-			return treeItem;
-		}
-		return notFound;
+		// const notFound: vscode.TreeItem = { label: "todo:none" };
+		return designNode;
 	}
 
 	select(range: vscode.Range) {
@@ -108,52 +83,4 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			false
 		);
 	}
-
-	private getIcon(node: json.Node): any {
-		let nodeType = node.type;
-		if (nodeType === "boolean") {
-			return {
-				light: this.context.asAbsolutePath(
-					path.join("resources", "light", "boolean.svg")
-				),
-				dark: this.context.asAbsolutePath(
-					path.join("resources", "dark", "boolean.svg")
-				)
-			};
-		}
-		if (nodeType === "string") {
-			return {
-				light: this.context.asAbsolutePath(
-					path.join("resources", "light", "string.svg")
-				),
-				dark: this.context.asAbsolutePath(
-					path.join("resources", "dark", "string.svg")
-				)
-			};
-		}
-		if (nodeType === "number") {
-			return {
-				light: this.context.asAbsolutePath(
-					path.join("resources", "light", "number.svg")
-				),
-				dark: this.context.asAbsolutePath(
-					path.join("resources", "dark", "number.svg")
-				)
-			};
-		}
-
-		if (nodeType === "object" || nodeType === "array") {
-			return {
-				light: this.context.asAbsolutePath(
-					path.join("resources", "light", "list.svg")
-				),
-				dark: this.context.asAbsolutePath(
-					path.join("resources", "dark", "list.svg")
-				)
-			};
-		}
-
-		return null;
-	}
-
 }
