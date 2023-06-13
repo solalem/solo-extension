@@ -1,5 +1,3 @@
-import * as json from "jsonc-parser";
-import * as path from "path";
 import * as vscode from "vscode";
 import { FeatureDesignRepository } from "./featureDesignRepository";
 import { FeatureDesignNode } from "./featureDesignNode";
@@ -16,6 +14,11 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		private repository: FeatureDesignRepository) {
 		vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
 		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
+		
+		vscode.commands.registerCommand('featureDesigns.openFile', (resource) => this.openResource(resource));
+		vscode.commands.registerCommand('featureDesigns.addEntry', () => vscode.window.showInformationMessage(`Successfully called add entry.`));
+		vscode.commands.registerCommand('featureDesigns.editEntry', (node: FeatureDesignNode) => vscode.window.showInformationMessage(`Successfully called edit entry on ${node.label}.`));
+		vscode.commands.registerCommand('featureDesigns.deleteEntry', (node: FeatureDesignNode) => vscode.window.showInformationMessage(`Successfully called delete entry on ${node.label}.`));
 	}
 
 	refresh(featureDesignNode?: FeatureDesignNode): void {
@@ -83,4 +86,9 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			false
 		);
 	}
+	
+	private openResource(resource: vscode.Uri): void {
+		vscode.window.showTextDocument(resource);
+	}
+
 }

@@ -3,7 +3,6 @@ import * as path from 'path';
 import { CodeTree, CodeTreeItem } from './models';
 
 export class CodeTreeNode extends vscode.TreeItem {
-
 	constructor(
 		public readonly label: string,
 		public readonly type: string,
@@ -20,6 +19,10 @@ export class CodeTreeNode extends vscode.TreeItem {
 		
 		this.iconPath = this.getIcon();
 		this.contextValue = label;
+		
+		if (this.type === "file") {
+			this.command = { command: 'codeTree.previewFile', title: "Preview File", arguments: [this], };
+		}
 	}
 	
 	getIcon(): any {

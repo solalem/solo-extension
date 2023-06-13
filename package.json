@@ -142,22 +142,15 @@
 			]
 		},
 		"configuration": [
-		  {
-			"title": "JSON Tree View",
-			"properties": {
-			  "jsonTreeView.autorefresh": {
-				"type": "boolean",
-				"default": true
-			  },
-			  "jsonTreeView.customizedViewActivated": {
-				"type": "boolean",
-				"default": true
-			  },
-			  "jsonTreeView.customizedViewMapping": {
-				"type": "object"
-			  }
+			{
+				"title": "Code Tree View",
+				"properties": {
+					"solo.templateDirectory": {
+						"type": "string",
+						"default": "%userprofile%/Documents/templates"
+					}
+				}
 			}
-		  }
 		]
 	},
 	"scripts": {
@@ -170,6 +163,7 @@
 		"@types/ftp": "^0.3.33",
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^16.11.7",
+		"@types/pluralize": "0.0.29",
 		"@types/rimraf": "^2.0.2",
 		"@types/vscode": "^1.67.0",
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
@@ -182,6 +176,8 @@
 		"jsonc-parser": "^0.4.2",
 		"minimist": "^1.2.6",
 		"mkdirp": "^0.5.1",
-		"rimraf": "^2.6.2"
+		"rimraf": "^2.6.2",
+		"handlebars": "^4.7.7",
+		"pluralize": "^8.0.0"
 	}
 }

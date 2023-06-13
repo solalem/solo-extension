@@ -25,12 +25,9 @@ export class FeatureDesignRepository {
 		return files.filter(([fsPath]) => 
 			fsPath
 			.includes(".feature.json"))
-			.map(([name, type, fsPath]) => {
-				let design = new FeatureDesign(name, "description", fsPath, undefined);
-				this.getItemsInDesign(name)
-				.then((items) => {
-					design.items = items;
-				}); 
+			.map(([fsPath]) => {
+				var file = path.join(soloPath, fsPath);
+                const design: FeatureDesign = JSON.parse(fs.readFileSync(file, 'utf-8'));
 				return design;
 			});
 	}
@@ -57,28 +54,26 @@ export class FeatureDesignRepository {
 		}
 	}
 	
-	public async getItemsInDesign(designName: string): Promise<FeatureDesignItem[]> {
+	public async getFeatureDesign(designName: string): Promise<FeatureDesign | undefined> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		if (!workspaceRoot) {
 			vscode.window.showInformationMessage('Empty workspace');
-			return Promise.resolve([]);
+			return Promise.resolve(undefined);
 		}
 
 		const soloPath = path.join(workspaceRoot, ".solo");
 		if (!_.exists(soloPath)) {
 			vscode.window.showInformationMessage('No .solo folder');
-			return Promise.resolve([]);
+			return Promise.resolve(undefined);
 		}
 		var file = path.join(soloPath, designName);
 
 		if (this.pathExists(file)) {
-			const designJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
-
-			return designJson.items.map((i: { name: string; description: string; }) => 
-				new FeatureDesignItem(i.name, i.description));
+			const designJson: FeatureDesign = JSON.parse(fs.readFileSync(file, 'utf-8'));
+			return Promise.resolve(designJson);
 		} else {
-			return Promise.resolve([]);
+			return Promise.resolve(undefined);
 		}
 	}
 	

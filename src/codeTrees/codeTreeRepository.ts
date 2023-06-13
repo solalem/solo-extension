@@ -4,7 +4,6 @@ import * as path from 'path';
 import { FileStat } from '../fileSystem/fileStat';
 import { _ } from '../fileSystem/fileUtilities';
 import { CodeTree } from './models';
-//import * as json from "jsonc-parser";
 
 export class CodeTreeRepository {
 
