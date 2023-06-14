@@ -3,7 +3,7 @@ import { CodeTreeRepository } from "./codeTreeRepository";
 import { CodeTreeNode } from "./codeTreeNode";
 import { CodeTree, CodeTreeItem } from "./models";
 import { FeatureDesignRepository } from "../featureDesigns/featureDesignRepository";
-import { generate, generateNode } from "../generator";
+import { Generator } from "../generators/generator";
 import path = require("path");
 import { _ } from "../fileSystem/fileUtilities";
 
@@ -92,7 +92,8 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		var item = context?.items?.find(x => x.name === treeItem.itemName);
 		if(!item) return;
 
-		generateNode(
+		const generator = new Generator();
+		generator.generateNode(
 			this.templateDirectory, 
 			path.join(soloPath, 'previews'),
 			treeItem, 
