@@ -76,33 +76,36 @@ const generateNode = function(
   }
 
   // Read Handlebar template 
-  fs.readFile(templateFile, (error, data) => {
-    if (error) throw error;
-    // compile the template
-    addHelpers();
-    var template = handlebars.compile(data.toString());
+  var data = fs.readFileSync(templateFile);
+    //, (error, data) => {
+  if (!data) 
+    return undefined;
+  //  if (error) throw error;
+  // compile the template
+  addHelpers();
+  var template = handlebars.compile(data.toString());
 
-    // execute the compiled template 
-    var output = template({ context: context, model: model }); 
-    if(output) {
-      var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
-      const fsPath = path.join(workspaceDirectory, destProper);
-      const dirname = path.dirname(fsPath);
-      var exists = fs.existsSync(dirname);
-      if (!exists) {
-        fs.mkdir(dirname, { recursive: true }, (err) => 
-        {
-          if (err) throw err; 
-        })
-      }
-
-      fs.writeFileSync(fsPath, output); 
-      callback(`File created ${chalk.green(destProper)}`);   
+  // execute the compiled template 
+  var output = template({ context: context, model: model }); 
+  if(output) {
+    var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
+    const fsPath = path.join(workspaceDirectory, destProper);
+    const dirname = path.dirname(fsPath);
+    var exists = fs.existsSync(dirname);
+    if (!exists) {
+      fs.mkdir(dirname, { recursive: true }, (err) => 
+      {
+        if (err) throw err; 
+      })
     }
 
-    return output;
-  });
-  return undefined;
+    fs.writeFileSync(fsPath, output); 
+    callback(`File created ${chalk.green(destProper)}`);   
+  }
+
+  return output;
+  //});
+  //return undefined;
 };
 
 const listTemplates = function(location: string) {

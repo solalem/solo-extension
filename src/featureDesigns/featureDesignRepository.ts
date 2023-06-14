@@ -28,6 +28,7 @@ export class FeatureDesignRepository {
 			.map(([fsPath]) => {
 				var file = path.join(soloPath, fsPath);
                 const design: FeatureDesign = JSON.parse(fs.readFileSync(file, 'utf-8'));
+				design.fsPath = file;
 				return design;
 			});
 	}
@@ -71,6 +72,7 @@ export class FeatureDesignRepository {
 
 		if (this.pathExists(file)) {
 			const designJson: FeatureDesign = JSON.parse(fs.readFileSync(file, 'utf-8'));
+			designJson.fsPath = file;
 			return Promise.resolve(designJson);
 		} else {
 			return Promise.resolve(undefined);
