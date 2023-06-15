@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { FileStat } from '../fileSystem/fileStat';
 import { _ } from '../fileSystem/fileUtilities';
-import { CodeTree } from './models';
+import { CodeTree, CodeTreeItem } from './models';
+import { FeatureDesign } from '../featureDesigns/models';
+import { replacePlaceholders } from '../generators/helpers';
 
 export class CodeTreeRepository {
 
@@ -16,31 +17,76 @@ export class CodeTreeRepository {
 		}
 
 		const soloPath = path.join(workspaceRoot, ".solo");
-		if (!_.exists(soloPath)) {
+		if (!fs.existsSync(soloPath)) {
 			vscode.window.showInformationMessage('No .solo folder');
 			return Promise.resolve(undefined);
 		}
 		var file = path.join(soloPath, "scaffold.json");
 
-		if (this.pathExists(file) && workspaceRoot) {
+		if (fs.existsSync(file) && workspaceRoot) {
 			var codeTree: CodeTree = JSON.parse(fs.readFileSync(file, 'utf-8'));
-
 			return Promise.resolve(codeTree);
 		} else {
 			return Promise.resolve(undefined);
 		}
 	}
 
-	private pathExists(p: string): boolean {
-		try {
-			fs.accessSync(p);
-		} catch (err) {
-			return false;
+	buildCodeTree(templatesDirectory: string, location: string, designs: FeatureDesign[]): CodeTreeItem[] {
+		const absoluteLocation = path.join(templatesDirectory, location);
+		var codeTreeItems: CodeTreeItem[] = [];
+		if (fs.existsSync(absoluteLocation) && !location.startsWith('.')) {
+			var templatePaths = fs.readdirSync(absoluteLocation, { withFileTypes: true });
+			templatePaths.filter(x => !x.name.startsWith('.')).forEach(filePath => {
+				const childLocation = path.join(location, filePath.name);
+				// for each design provided built tree without repeating nodes
+				designs.forEach(design => {
+					design.items?.forEach(item => {
+						const treeItemName = replacePlaceholders(filePath.name, item, design, () => {});
+						if(codeTreeItems.find(x => x.name == treeItemName))
+							return;
+						
+						codeTreeItems.push(new CodeTreeItem(
+							treeItemName,
+							filePath.isDirectory() ? 'folder' : filePath.isFile() ? 'file' : '',
+							treeItemName,
+      						replacePlaceholders(childLocation, item, design, () => {}),
+							childLocation,
+							design.name,
+							item.name,
+							filePath.isDirectory() ? this.buildCodeTree(templatesDirectory, childLocation, designs): []));
+					});
+				});
+			})
 		}
-		return true;
+		return codeTreeItems;
 	}
+
+	save(codeTree: CodeTree, callback: any) {
+
+		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+		if (!workspaceRoot) {
+			vscode.window.showInformationMessage('Empty workspace');
+			return;
+		}
+		
+		const soloPath = path.join(workspaceRoot, ".solo");
+		if(codeTree) {
+		  //var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
+		  const fsPath = path.join(soloPath, 'scaffold.json');
+		  //path.join(workspaceDirectory, codeTreeItem.destinationPath);
+		  const dirname = path.dirname(fsPath);
+		  var exists = fs.existsSync(dirname);
+		  if (!exists) {
+			fs.mkdir(dirname, { recursive: true }, (err) => 
+			{
+			  if (err) throw err; 
+			})
+		  }
 	
-	async _stat(path: string): Promise<vscode.FileStat> {
-		return new FileStat(await _.stat(path));
-	}
+		  fs.writeFileSync(fsPath, JSON.stringify(codeTree)); 
+		  callback(`Scaffold.json updated`);   
+		}
+	  };
+	
 }

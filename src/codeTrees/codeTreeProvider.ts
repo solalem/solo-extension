@@ -43,14 +43,21 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			return codeTreeNode.tag.children.map((i) => (
 				new CodeTreeNode(
 					i.name, 
-					i.children ? 'folder': 'file',
+					i.type,
 					i)
 			));
 		} else {
-			this.codeTree = await this.repository.getCodeTree();
-			if (!this.codeTree || !this.codeTree.children) 
+			//this.codeTree = await this.repository.getCodeTree();
+			var designs = await this.featureDesignRepository.getFeatureDesigns();
+			var children = await this.repository.buildCodeTree(this.templateDirectory, 'e2e', designs);
+			if (!children) 
 				return [];
 
+			// Save
+			this.codeTree = new CodeTree('', '');
+			this.codeTree.children = children;
+			this.repository.save(this.codeTree, (x: string) => this.soloOutputChannel.appendLine(x));
+			
 			return this.codeTree.children.map((i) => (
 				new CodeTreeNode(
 					i.name, 

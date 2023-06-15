@@ -4,7 +4,7 @@ import * as path from "path";
 import * as handlebars from "handlebars";
 import { FeatureDesign, FeatureDesignItem } from "../featureDesigns/models";
 import { CodeTreeItem } from '../codeTrees/models';
-import { addHelpers, replacePlaceholders } from './helpers';
+import { addHelpers } from './helpers';
 
 export class Generator {
 
@@ -20,12 +20,12 @@ export class Generator {
     
     var isDirectory = exists && stats.isDirectory();
     if (isDirectory) {
-      var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
+      //var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
       // Does it exist?
-      var destExists = fs.existsSync(destProper);
-      if(!destExists) {
-        fs.mkdirSync(destProper);
-      }
+      var destExists = fs.existsSync(codeTreeItem.destinationPath);
+      if(!destExists) 
+        fs.mkdirSync(codeTreeItem.destinationPath);
+      
       callback(`Checking templates in folder ${chalk.green(templateFile)}`);   
       // Go one level deeper
       codeTreeItem.children.forEach(function(this: Generator, child) {
@@ -36,9 +36,9 @@ export class Generator {
       // execute the compiled template and write to new file
       var output = this.generateNode(templatesDirectory, workspaceDirectory, codeTreeItem, model, context, callback);
       if(output) {
-        var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
-        fs.writeFileSync(destProper, output); 
-        callback(`File created ${chalk.green(destProper)}`);   
+        //var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
+        fs.writeFileSync(codeTreeItem.destinationPath, output); 
+        callback(`File created ${chalk.green(codeTreeItem.destinationPath)}`);   
       }
     }
   };
@@ -72,8 +72,8 @@ export class Generator {
     // execute the compiled template 
     var output = template({ context: context, model: model }); 
     if(output) {
-      var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
-      const fsPath = path.join(workspaceDirectory, destProper);
+      //var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
+      const fsPath = path.join(workspaceDirectory, codeTreeItem.destinationPath);
       const dirname = path.dirname(fsPath);
       var exists = fs.existsSync(dirname);
       if (!exists) {
@@ -84,7 +84,7 @@ export class Generator {
       }
 
       fs.writeFileSync(fsPath, output); 
-      callback(`File created ${chalk.green(destProper)}`);   
+      callback(`File created ${chalk.green(codeTreeItem.destinationPath)}`);   
     }
 
     return output;

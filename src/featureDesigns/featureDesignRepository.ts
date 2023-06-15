@@ -32,28 +32,6 @@ export class FeatureDesignRepository {
 				return design;
 			});
 	}
-
-	public async getDesignText(designName: string): Promise<string | undefined> {
-		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-		if (!workspaceRoot) {
-			vscode.window.showInformationMessage('Empty workspace');
-			return Promise.resolve(undefined);
-		}
-
-		const soloPath = path.join(workspaceRoot, ".solo");
-		if (!_.exists(soloPath)) {
-			vscode.window.showInformationMessage('No .solo folder');
-			return Promise.resolve(undefined);
-		}
-		var file = path.join(soloPath, designName);
-
-		if (this.pathExists(file)) {
-			return fs.readFileSync(file, 'utf-8');
-		} else {
-			return Promise.resolve(undefined);
-		}
-	}
 	
 	public async getFeatureDesign(designName: string): Promise<FeatureDesign | undefined> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))

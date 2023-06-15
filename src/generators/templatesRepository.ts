@@ -5,33 +5,26 @@ import { CodeTreeItem } from '../codeTrees/models';
 
 export class TemplatesRepository {
 
-	listTemplates(location: string) {
-		var exists = fs.existsSync(location);
-		var templates: CodeTreeItem[] = [];
-		if (exists) {
-		  var parents = fs.readdirSync(location);
-	  
-		  parents.forEach(parent => {
-			const fsPath = path.join(location, parent);
-			var children = fs.readdirSync(fsPath);
-			templates.push(
-			  new CodeTreeItem(
-				parent, 
-				'description', 
-				'./destination', 
-				fsPath,
-				'design',
-				'item', 
-				children.map((c) => new CodeTreeItem(
-				  c,
-				  'description', 
-				  './destination', 
-				  fsPath,
-				  'design',
-				  'item',
-				  this.listTemplates(c)))));
-		  })
+	listTemplates(templatesDirectory: string, location: string) {
+		const absoluteLocation = path.join(templatesDirectory, location);
+		var codeTreeItems: CodeTreeItem[] = [];
+		if (fs.existsSync(absoluteLocation)) {
+			var templateFiles = fs.readdirSync(absoluteLocation, { withFileTypes: true });
+
+			templateFiles.filter(x => x.name.startsWith('.')).forEach(filename => {
+				const childLocation = path.join(location, filename.name);
+				codeTreeItems.push(
+					new CodeTreeItem(
+						filename.name,
+						filename.isDirectory() ? 'folder' : filename.isFile() ? 'file' : '',
+						filename.name,
+						'',
+						childLocation,
+						'',
+						'',
+						this.listTemplates(templatesDirectory, childLocation)));
+			})
 		}
-		return templates;
-	  }
+		return codeTreeItems;
+	}
 }
