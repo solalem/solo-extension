@@ -20,7 +20,7 @@ export class CodeTreeItem {
 		public description: string,
 		public destinationPath: string,
 		public templatePath: string,
-		public designName: string,
+		public designId: string,
 		public itemName: string,
 		public children: CodeTreeItem[]
 	) {

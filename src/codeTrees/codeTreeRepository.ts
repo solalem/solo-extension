@@ -16,12 +16,12 @@ export class CodeTreeRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const soloPath = path.join(workspaceRoot, ".solo");
+		const soloPath = path.join(workspaceRoot, "design");
 		if (!fs.existsSync(soloPath)) {
-			vscode.window.showInformationMessage('No .solo folder');
+			vscode.window.showInformationMessage('No design folder');
 			return Promise.resolve(undefined);
 		}
-		var file = path.join(soloPath, "scaffold.json");
+		var file = path.join(soloPath, "tree.json");
 
 		if (fs.existsSync(file) && workspaceRoot) {
 			var codeTree: CodeTree = JSON.parse(fs.readFileSync(file, 'utf-8'));
@@ -51,7 +51,7 @@ export class CodeTreeRepository {
 							treeItemName,
       						replacePlaceholders(childLocation, item, design, () => {}),
 							childLocation,
-							design.name,
+							design.id,
 							item.name,
 							filePath.isDirectory() ? this.buildCodeTree(templatesDirectory, childLocation, designs): []));
 					});
@@ -70,10 +70,10 @@ export class CodeTreeRepository {
 			return;
 		}
 		
-		const soloPath = path.join(workspaceRoot, ".solo");
+		const soloPath = path.join(workspaceRoot, "design");
 		if(codeTree) {
 		  //var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
-		  const fsPath = path.join(soloPath, 'scaffold.json');
+		  const fsPath = path.join(soloPath, 'tree.json');
 		  //path.join(workspaceDirectory, codeTreeItem.destinationPath);
 		  const dirname = path.dirname(fsPath);
 		  var exists = fs.existsSync(dirname);
@@ -85,7 +85,7 @@ export class CodeTreeRepository {
 		  }
 	
 		  fs.writeFileSync(fsPath, JSON.stringify(codeTree)); 
-		  callback(`Scaffold.json updated`);   
+		  callback(`tree.json updated`);   
 		}
 	  };
 	

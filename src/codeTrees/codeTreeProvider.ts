@@ -79,9 +79,9 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			return;
 		}
 		
-		const soloPath = path.join(workspaceRoot, ".solo");
+		const soloPath = path.join(workspaceRoot, "design");
 		if (!_.exists(soloPath)) {
-			vscode.window.showInformationMessage('No .solo folder');
+			vscode.window.showInformationMessage('No design folder');
 			return;
 		}
 
@@ -91,9 +91,9 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 		this.soloOutputChannel.appendLine(`Workspace: ${workspaceRoot}`);
 		this.soloOutputChannel.appendLine(`Templates path: ${this.templateDirectory}`);
-		this.soloOutputChannel.appendLine(`Context path: ${treeItem.designName}`);
+		this.soloOutputChannel.appendLine(`Context path: ${treeItem.designId}`);
 
-		var context = await this.featureDesignRepository.getFeatureDesign(treeItem.designName);
+		var context = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
 		if(!context || !context.items) return;
 
 		var item = context?.items?.find(x => x.name === treeItem.itemName);

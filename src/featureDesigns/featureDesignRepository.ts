@@ -15,25 +15,23 @@ export class FeatureDesignRepository {
 			return Promise.resolve([]);
 		}
 
-		const soloPath = path.join(workspaceRoot, ".solo");
-		if (!_.exists(soloPath)) {
-			vscode.window.showInformationMessage('No .solo folder');
+		const designsPath = path.join(workspaceRoot, "design", "modules");
+		if (!_.exists(designsPath)) {
+			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve([]);
 		}
 
-		var files = await this.readDirectory(soloPath);
-		return files.filter(([fsPath]) => 
-			fsPath
-			.includes(".feature.json"))
+		var files = await this.readDirectory(designsPath);
+		return files
 			.map(([fsPath]) => {
-				var file = path.join(soloPath, fsPath);
+				var file = path.join(designsPath, fsPath);
                 const design: FeatureDesign = JSON.parse(fs.readFileSync(file, 'utf-8'));
-				design.fsPath = file;
+				design.id = fsPath;
 				return design;
 			});
 	}
 	
-	public async getFeatureDesign(designName: string): Promise<FeatureDesign | undefined> {
+	public async getFeatureDesign(designId: string): Promise<FeatureDesign | undefined> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		if (!workspaceRoot) {
@@ -41,16 +39,16 @@ export class FeatureDesignRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const soloPath = path.join(workspaceRoot, ".solo");
-		if (!_.exists(soloPath)) {
-			vscode.window.showInformationMessage('No .solo folder');
+		const designsPath = path.join(workspaceRoot, "design", "modules");
+		if (!_.exists(designsPath)) {
+			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve(undefined);
 		}
-		var file = path.join(soloPath, designName);
+		var file = path.join(designsPath, designId);
 
 		if (this.pathExists(file)) {
 			const designJson: FeatureDesign = JSON.parse(fs.readFileSync(file, 'utf-8'));
-			designJson.fsPath = file;
+			designJson.id = designId;
 			return Promise.resolve(designJson);
 		} else {
 			return Promise.resolve(undefined);
