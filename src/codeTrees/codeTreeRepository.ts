@@ -87,6 +87,30 @@ export class CodeTreeRepository {
 		  fs.writeFileSync(fsPath, JSON.stringify(codeTree)); 
 		  callback(`tree.json updated`);   
 		}
-	  };
+	}
+
+	prepare() {
+		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+		if (!workspaceRoot) {
+			vscode.window.showInformationMessage('Empty workspace');
+			return;
+		}
+		
+		const modulesPath = path.join(workspaceRoot, "design", "modules");
+        if (!fs.existsSync(modulesPath)) {
+            fs.mkdir(modulesPath, { recursive: true }, (err) => {
+				if (err) throw err; 
+			})
+        }
+        const configFile = path.join(workspaceRoot, "design", "config.json");
+        if (!fs.existsSync(configFile)) {
+            fs.writeFileSync(configFile, "{ \"name\":\"test\" }");
+        }
+        const moduleFile = path.join(workspaceRoot, "design", "modules", "module1.json");
+        if (!fs.existsSync(moduleFile)) {
+            fs.writeFileSync(moduleFile, "{ \"name\":\"test\", \"items\": [] }");
+        }
+	}
 	
 }

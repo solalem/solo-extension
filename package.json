@@ -25,6 +25,13 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"viewsWelcome": [
+			{
+			  "view": "codeTree",
+			  "contents": "You can create a new.\n[Create New](command:solo.new)\n OR \n If you set up solo account, you can get it. \n [Get](command:git.get)\nTo learn more about how to use solo in VS Code [read our docs](https://solo.org/vscode).",
+			  "when": "!solo.configured"
+			}
+		],
 		"viewsContainers": {
 			"activitybar": [
 				{
@@ -80,6 +87,14 @@
 			{
 				"command": "featureDesigns.deleteEntry",
 				"title": "Delete"
+			},
+			{
+				"command": "solo.new",
+				"title": "New"
+			},
+			{
+				"command": "solo.get",
+				"title": "Get"
 			},
 			{
 				"command": "codeTree.refresh",
