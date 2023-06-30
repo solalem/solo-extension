@@ -22,13 +22,10 @@ export class CodeTreeView {
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		const configured = rootPath && fs.existsSync(path.join(rootPath, "design"));
 		vscode.commands.executeCommand('setContext', 'solo.configured', configured);
-		const newCommand = vscode.commands.registerCommand(
-			'solo.new',
-			async () => {
-				codeTreeRepository.prepare();
-				treeDataProvider.refresh();
-			}
-		);
+		const newCommand = vscode.commands.registerCommand('solo.new', async () => {
+			codeTreeRepository.prepare();
+			treeDataProvider.refresh();
+		});
 		context.subscriptions.push(newCommand);
 		
 		context.subscriptions.push(vscode.window.createTreeView('codeTree', { treeDataProvider }));

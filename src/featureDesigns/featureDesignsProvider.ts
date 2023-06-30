@@ -16,9 +16,9 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
 		
 		vscode.commands.registerCommand('featureDesigns.openFile', (resource) => this.openResource(resource));
-		vscode.commands.registerCommand('featureDesigns.addEntry', () => vscode.window.showInformationMessage(`Successfully called add entry.`));
-		vscode.commands.registerCommand('featureDesigns.editEntry', (node: FeatureDesignNode) => vscode.window.showInformationMessage(`Successfully called edit entry on ${node.label}.`));
-		vscode.commands.registerCommand('featureDesigns.deleteEntry', (node: FeatureDesignNode) => vscode.window.showInformationMessage(`Successfully called delete entry on ${node.label}.`));
+		vscode.commands.registerCommand('featureDesigns.addDesign', () => vscode.window.showInformationMessage(`Successfully called add design.`));
+		vscode.commands.registerCommand('featureDesigns.deleteDesign', (design: FeatureDesign) => vscode.window.showInformationMessage(`Successfully called delete design on ${design.name}.`));
+		vscode.commands.registerCommand('featureDesigns.duplicateItem', (node: FeatureDesignNode) => vscode.window.showInformationMessage(`Successfully called duplicate item on ${node.label}.`));
 	}
 
 	refresh(featureDesignNode?: FeatureDesignNode): void {

@@ -11,7 +11,8 @@ export class FeatureDesignNode extends vscode.TreeItem {
 		super(label);
 
 		this.tooltip = `${this.label} - ${this.type}`;
-		this.description = this.label;
+		//this.description = this.label;
+		this.contextValue = this.type;
 		
 		this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
 		if (type === 'design') {
@@ -30,6 +31,4 @@ export class FeatureDesignNode extends vscode.TreeItem {
 		light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'list.svg'),
 		dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'list.svg')
 	};
-
-	contextValue = this.label;
 }

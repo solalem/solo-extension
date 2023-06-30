@@ -57,7 +57,7 @@
 		},
 		"commands": [
 			{
-				"command": "featureDesigns.refreshEntry",
+				"command": "featureDesigns.refresh",
 				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -73,36 +73,40 @@
 				}
 			},
 			{
-				"command": "featureDesigns.addEntry",
-				"title": "Add"
+				"command": "featureDesigns.addDesign",
+				"title": "Add Design"
 			},
 			{
-				"command": "featureDesigns.editEntry",
-				"title": "Edit",
+				"command": "featureDesigns.deleteDesign",
+				"title": "Delete Design",
 				"icon": {
-					"light": "resources/light/edit.svg",
-					"dark": "resources/dark/edit.svg"
+					"light": "resources/light/error.svg",
+					"dark": "resources/dark/error.svg"
 				}
 			},
 			{
-				"command": "featureDesigns.deleteEntry",
-				"title": "Delete"
+				"command": "featureDesigns.duplicateItem",
+				"title": "Duplicate Item",
+				"icon": {
+					"light": "resources/light/dependency.svg",
+					"dark": "resources/dark/dependency.svg"
+				}
+			},
+			{
+				"command": "featureDesigns.changeTitle",
+				"title": "Change Title"
 			},
 			{
 				"command": "solo.new",
-				"title": "New"
+				"title": "New Solution"
 			},
 			{
-				"command": "solo.get",
-				"title": "Get"
+				"command": "solo.clone",
+				"title": "Clone Solution"
 			},
 			{
 				"command": "codeTree.refresh",
-				"title": "Refresh"
-			},
-			{
-				"command": "codeTree.refreshFile",
-				"title": "Refresh File",
+				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
 					"dark": "resources/dark/refresh.svg"
@@ -110,11 +114,11 @@
 			},
 			{
 				"command": "codeTree.previewFile",
-				"title": "Preview File"
-			},
-			{
-				"command": "codeTree.changeTitle",
-				"title": "Change Title"
+				"title": "Preview File",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
 			}
 		],
 		"menus": {
@@ -125,12 +129,12 @@
 			],
 			"view/title": [
 				{
-					"command": "featureDesigns.refreshEntry",
+					"command": "featureDesigns.refresh",
 					"when": "view == featureDesigns",
 					"group": "navigation"
 				},
 				{
-					"command": "featureDesigns.addEntry",
+					"command": "featureDesigns.addDesign",
 					"when": "view == featureDesigns"
 				},
 				{
@@ -141,16 +145,17 @@
 			],
 			"view/item/context": [
 				{
-					"command": "featureDesigns.editEntry",
-					"when": "view == featureDesigns && viewItem == dependency",
+					"command": "featureDesigns.deleteDesign",
+					"when": "view == featureDesigns && viewItem == design",
 					"group": "inline"
 				},
 				{
-					"command": "featureDesigns.deleteEntry",
-					"when": "view == featureDesigns && viewItem == dependency"
+					"command": "featureDesigns.duplicateItem",
+					"when": "view == featureDesigns && viewItem == item",
+					"group": "inline"
 				},
 				{
-					"command": "codeTree.refreshFile",
+					"command": "codeTree.previewFile",
 					"when": "view == codeTree && viewItem == file",
 					"group": "inline"
 				}
