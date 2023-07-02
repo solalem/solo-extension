@@ -45,11 +45,12 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 					new FeatureDesignNode(
 						i.name,
 						"design",
-						i.id)
+						i.id,
+						i.fsPath)
 				));
 		}
 
-		const currentDesign = this.designs.find(x => x.id === designNode.filePath);
+		const currentDesign = this.designs.find(x => x.id === designNode.designId);
 		if (!currentDesign|| !currentDesign.items)
 		 	return Promise.resolve([]);
 
@@ -58,6 +59,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 				new FeatureDesignNode(
 					i.name,
 					"item",
+					undefined,
 					undefined)
 			));
 		}

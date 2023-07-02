@@ -18,7 +18,8 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		private repository: CodeTreeRepository,
 		private featureDesignRepository: FeatureDesignRepository,
 		private soloOutputChannel: vscode.OutputChannel) {
-		vscode.commands.registerCommand('codeTree.previewFile', (resource) => this.previewFile(resource));
+		vscode.commands.registerCommand('codeTree.previewFile', (resource) => this.generateFile(resource));
+		vscode.commands.registerCommand('codeTree.generateFile', (resource) => this.generateFile(resource, false));
 		
 		this.templateDirectory = vscode.workspace.getConfiguration('solo').get('templateDirectory', './');
 		vscode.workspace.onDidChangeConfiguration(() => {
@@ -71,7 +72,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		return codeTreeNode;
 	}
 
-	private async previewFile(node: CodeTreeNode): Promise<void> {
+	private async generateFile(node: CodeTreeNode, isPreview = true): Promise<void> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		if (!workspaceRoot) {
@@ -99,10 +100,14 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		var item = context?.items?.find(x => x.name === treeItem.itemName);
 		if(!item) return;
 
+			
+		let destinationFolder = workspaceRoot;
+		if(isPreview) 
+		destinationFolder = path.join(soloPath, 'previews');
 		const generator = new Generator();
 		generator.generateNode(
 			this.templateDirectory, 
-			path.join(soloPath, 'previews'),
+			destinationFolder,
 			treeItem, 
 			item,
 			context, 
@@ -111,7 +116,9 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 				this.soloOutputChannel.appendLine(message);
 			});
 			
-		const previewPath = vscode.Uri.file(path.join(soloPath, 'previews', treeItem.destinationPath));
+		let previewPath = vscode.Uri.file(path.join(destinationFolder, treeItem.destinationPath));
+		if(isPreview) 
+			previewPath = vscode.Uri.file(path.join(destinationFolder, treeItem.destinationPath));
 		await vscode.window.showTextDocument(previewPath);
 	}
 }

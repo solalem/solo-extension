@@ -119,6 +119,14 @@
 					"light": "resources/light/document.svg",
 					"dark": "resources/dark/document.svg"
 				}
+			},
+			{
+				"command": "codeTree.generateFile",
+				"title": "Generate File",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
 			}
 		],
 		"menus": {
@@ -155,7 +163,7 @@
 					"group": "inline"
 				},
 				{
-					"command": "codeTree.previewFile",
+					"command": "codeTree.generateFile",
 					"when": "view == codeTree && viewItem == file",
 					"group": "inline"
 				}

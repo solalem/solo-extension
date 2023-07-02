@@ -6,7 +6,8 @@ export class FeatureDesignNode extends vscode.TreeItem {
 	constructor(
 		public readonly label: string,
 		public readonly type: string,
-		public readonly filePath: string | undefined,
+		public readonly designId: string | undefined,
+		public readonly fsPath: string | undefined,
 	) {
 		super(label);
 
@@ -22,8 +23,8 @@ export class FeatureDesignNode extends vscode.TreeItem {
 			this.collapsibleState = vscode.TreeItemCollapsibleState.None;
 		}
 
-		if (filePath) {
-			this.command = { command: 'featureDesigns.openFile', title: "Open File", arguments: [vscode.Uri.file(filePath)], };
+		if (fsPath) {
+			this.command = { command: 'featureDesigns.openFile', title: "Open File", arguments: [vscode.Uri.file(fsPath)], };
 		}
 	}
 

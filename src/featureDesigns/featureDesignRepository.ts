@@ -23,10 +23,11 @@ export class FeatureDesignRepository {
 
 		var files = await this.readDirectory(designsPath);
 		return files
-			.map(([fsPath]) => {
-				var file = path.join(designsPath, fsPath);
-                const design: FeatureDesign = JSON.parse(fs.readFileSync(file, 'utf-8'));
-				design.id = fsPath;
+			.map(([file]) => {
+				var fsPath = path.join(designsPath, file);
+                const design: FeatureDesign = JSON.parse(fs.readFileSync(fsPath, 'utf-8'));
+				design.id = file;
+				design.fsPath = fsPath;
 				return design;
 			});
 	}
@@ -44,11 +45,12 @@ export class FeatureDesignRepository {
 			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve(undefined);
 		}
-		var file = path.join(designsPath, designId);
+		var fsPath = path.join(designsPath, designId);
 
-		if (this.pathExists(file)) {
-			const designJson: FeatureDesign = JSON.parse(fs.readFileSync(file, 'utf-8'));
+		if (this.pathExists(fsPath)) {
+			const designJson: FeatureDesign = JSON.parse(fs.readFileSync(fsPath, 'utf-8'));
 			designJson.id = designId;
+			designJson.fsPath = fsPath;
 			return Promise.resolve(designJson);
 		} else {
 			return Promise.resolve(undefined);
