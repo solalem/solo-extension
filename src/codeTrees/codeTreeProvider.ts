@@ -117,8 +117,6 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			});
 			
 		let previewPath = vscode.Uri.file(path.join(destinationFolder, treeItem.destinationPath));
-		if(isPreview) 
-			previewPath = vscode.Uri.file(path.join(destinationFolder, treeItem.destinationPath));
 		await vscode.window.showTextDocument(previewPath);
 	}
 }
