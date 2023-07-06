@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { FileStat } from '../fileSystem/fileStat';
 import { _ } from '../fileSystem/fileUtilities';
-import { FeatureDesign, FeatureDesignItem } from './models';
+import { FeatureDesign } from './models';
 
 export class FeatureDesignRepository {
 
@@ -57,19 +56,18 @@ export class FeatureDesignRepository {
 		}
 	}
 	
-	readDirectory(uri: string): [string, vscode.FileType, string][] | Thenable<[string, vscode.FileType, string][]> {
+	readDirectory(uri: string): [string, string][] | Thenable<[string, string][]> {
 		return this._readDirectory(uri);
 	}
 
-	async _readDirectory(uri: string): Promise<[string, vscode.FileType, string][]> {
+	async _readDirectory(uri: string): Promise<[string, string][]> {
 		const children = await _.readdir(uri);
 
-		const result: [string, vscode.FileType, string][] = [];
+		const result: [string, string][] = [];
 		for (let i = 0; i < children.length; i++) {
 			const child = children[i];
 			const fsPath = path.join(uri, child);
-			const stat = await this._stat(fsPath);
-			result.push([child, stat.type, fsPath]);
+			result.push([child, fsPath]);
 		}
 
 		return Promise.resolve(result);
@@ -82,9 +80,5 @@ export class FeatureDesignRepository {
 			return false;
 		}
 		return true;
-	}
-	
-	async _stat(path: string): Promise<vscode.FileStat> {
-		return new FileStat(await _.stat(path));
 	}
 }
