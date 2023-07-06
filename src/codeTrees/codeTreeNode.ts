@@ -26,12 +26,6 @@ export class CodeTreeNode extends vscode.TreeItem {
 	}
 	
 	getIcon(): any {
-        if (this.type === "folder") {
-            return {
-				light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
-				dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
-			};
-        }
         if (this.type === "file") {
             return {
 				light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'document.svg'),

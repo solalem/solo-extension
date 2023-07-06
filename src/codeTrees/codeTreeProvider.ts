@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
+import * as os from "node:os";
+import * as fs from 'fs';
 import { CodeTreeRepository } from "./codeTreeRepository";
 import { CodeTreeNode } from "./codeTreeNode";
 import { CodeTree, CodeTreeItem } from "./models";
 import { FeatureDesignRepository } from "../featureDesigns/featureDesignRepository";
 import { Generator } from "../generators/generator";
 import path = require("path");
-import { _ } from "../fileSystem/fileUtilities";
 
 export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 	private _onDidChangeTreeData: vscode.EventEmitter<CodeTreeNode | null> = new vscode.EventEmitter<CodeTreeNode | null>();
@@ -20,6 +21,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		private soloOutputChannel: vscode.OutputChannel) {
 		vscode.commands.registerCommand('codeTree.previewFile', (resource) => this.generateFile(resource));
 		vscode.commands.registerCommand('codeTree.generateFile', (resource) => this.generateFile(resource, false));
+		vscode.commands.registerCommand('codeTree.refresh', (resource) => this.refresh(resource));
 		
 		this.templateDirectory = vscode.workspace.getConfiguration('solo').get('templateDirectory', './');
 		vscode.workspace.onDidChangeConfiguration(() => {
@@ -48,17 +50,20 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 					i)
 			));
 		} else {
-			//this.codeTree = await this.repository.getCodeTree();
-			var designs = await this.featureDesignRepository.getFeatureDesigns();
-			var children = await this.repository.buildCodeTree(this.templateDirectory, 'e2e', designs);
-			if (!children) 
-				return [];
+			this.codeTree = await this.repository.getCodeTree();
+			if(!this.codeTree) {
+				var designs = await this.featureDesignRepository.getFeatureDesigns();
+				this.codeTree = new CodeTree('', '');
+				this.codeTree.children = await this.repository.buildCodeTree(this.templateDirectory, 'e2e', designs);
+				if (!this.codeTree.children) 
+					return [];
 
-			// Save
-			this.codeTree = new CodeTree('', '');
-			this.codeTree.children = children;
-			this.repository.save(this.codeTree, (x: string) => this.soloOutputChannel.appendLine(x));
-			
+				// Save
+				this.repository.save(
+					this.codeTree, 
+					(x: string) => this.soloOutputChannel.appendLine(x));
+			}
+
 			return this.codeTree.children.map((i) => (
 				new CodeTreeNode(
 					i.name, 
@@ -73,15 +78,15 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 	}
 
 	private async generateFile(node: CodeTreeNode, isPreview = true): Promise<void> {
-		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-		if (!workspaceRoot) {
+		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0] : undefined;
+		if (!workspaceFolder?.uri.path) {
 			vscode.window.showInformationMessage('Empty workspace');
 			return;
 		}
 		
-		const soloPath = path.join(workspaceRoot, "design");
-		if (!_.exists(soloPath)) {
+		const soloPath = path.join(workspaceFolder.uri.fsPath, "design");
+		if (!fs.existsSync(soloPath)) {
 			vscode.window.showInformationMessage('No design folder');
 			return;
 		}
@@ -90,7 +95,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const treeItem = node.tag as CodeTreeItem;
 		if(!treeItem) return;
 
-		this.soloOutputChannel.appendLine(`Workspace: ${workspaceRoot}`);
+		this.soloOutputChannel.appendLine(`Workspace: ${workspaceFolder.uri.fsPath}`);
 		this.soloOutputChannel.appendLine(`Templates path: ${this.templateDirectory}`);
 		this.soloOutputChannel.appendLine(`Context path: ${treeItem.designId}`);
 
@@ -99,11 +104,11 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 		var item = context?.items?.find(x => x.name === treeItem.itemName);
 		if(!item) return;
-
-			
-		let destinationFolder = workspaceRoot;
+	
+		let destinationFolder = workspaceFolder.uri.fsPath;
 		if(isPreview) 
-		destinationFolder = path.join(soloPath, 'previews');
+			destinationFolder = path.join(os.tmpdir(), 'solo', workspaceFolder.name, 'previews');
+		
 		const generator = new Generator();
 		generator.generateNode(
 			this.templateDirectory, 
@@ -116,7 +121,8 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 				this.soloOutputChannel.appendLine(message);
 			});
 			
-		let previewPath = vscode.Uri.file(path.join(destinationFolder, treeItem.destinationPath));
-		await vscode.window.showTextDocument(previewPath);
+		let previewPath = path.join(destinationFolder, treeItem.destinationPath);
+		if (fs.existsSync(previewPath))
+			await vscode.window.showTextDocument(vscode.Uri.file(previewPath));
 	}
 }

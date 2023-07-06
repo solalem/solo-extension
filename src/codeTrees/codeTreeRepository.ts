@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from "node:os";
 import { _ } from '../fileSystem/fileUtilities';
 import { CodeTree, CodeTreeItem } from './models';
 import { FeatureDesign } from '../featureDesigns/models';
@@ -9,22 +10,22 @@ import { replacePlaceholders } from '../generators/helpers';
 export class CodeTreeRepository {
 
 	public async getCodeTree(): Promise<CodeTree | undefined> {
-		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-		if (!workspaceRoot) {
+		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0] : undefined;
+		if (!workspaceFolder?.uri.path) {
 			vscode.window.showInformationMessage('Empty workspace');
-			return Promise.resolve(undefined);
+			return;
 		}
 
-		const soloPath = path.join(workspaceRoot, "design");
+		const soloPath = path.join(workspaceFolder.uri.fsPath, "design");
 		if (!fs.existsSync(soloPath)) {
 			vscode.window.showInformationMessage('No design folder');
 			return Promise.resolve(undefined);
 		}
-		var file = path.join(soloPath, "tree.json");
 
-		if (fs.existsSync(file) && workspaceRoot) {
-			var codeTree: CodeTree = JSON.parse(fs.readFileSync(file, 'utf-8'));
+		const treePath = path.join(os.tmpdir(), 'solo', workspaceFolder.name, 'tree.json');
+		if (fs.existsSync(treePath)) {
+			var codeTree: CodeTree = JSON.parse(fs.readFileSync(treePath, 'utf-8'));
 			return Promise.resolve(codeTree);
 		} else {
 			return Promise.resolve(undefined);
@@ -62,20 +63,16 @@ export class CodeTreeRepository {
 	}
 
 	save(codeTree: CodeTree, callback: any) {
-
-		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-		if (!workspaceRoot) {
+		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0] : undefined;
+		if (!workspaceFolder?.uri.path) {
 			vscode.window.showInformationMessage('Empty workspace');
 			return;
 		}
 		
-		const soloPath = path.join(workspaceRoot, "design");
 		if(codeTree) {
-		  //var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
-		  const fsPath = path.join(soloPath, 'tree.json');
-		  //path.join(workspaceDirectory, codeTreeItem.destinationPath);
-		  const dirname = path.dirname(fsPath);
+		  const treePath = path.join(os.tmpdir(), 'solo', workspaceFolder.name, 'tree.json');
+		  const dirname = path.dirname(treePath);
 		  var exists = fs.existsSync(dirname);
 		  if (!exists) {
 			fs.mkdir(dirname, { recursive: true }, (err) => 
@@ -84,7 +81,7 @@ export class CodeTreeRepository {
 			})
 		  }
 	
-		  fs.writeFileSync(fsPath, JSON.stringify(codeTree)); 
+		  fs.writeFileSync(treePath, JSON.stringify(codeTree)); 
 		  callback(`tree.json updated`);   
 		}
 	}
