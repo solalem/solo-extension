@@ -15,10 +15,12 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
 		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
 		
-		vscode.commands.registerCommand('featureDesigns.openFile', (resource) => this.openResource(resource));
+		vscode.commands.registerCommand('featureDesigns.openFile', (uri) => this.openFile(uri));
 		vscode.commands.registerCommand('featureDesigns.addDesign', () => vscode.window.showInformationMessage(`Successfully called add design.`));
 		vscode.commands.registerCommand('featureDesigns.deleteDesign', (design: FeatureDesign) => vscode.window.showInformationMessage(`Successfully called delete design on ${design.name}.`));
-		vscode.commands.registerCommand('featureDesigns.duplicateItem', (node: FeatureDesignNode) => vscode.window.showInformationMessage(`Successfully called duplicate item on ${node.label}.`));
+		vscode.commands.registerCommand('featureDesigns.openInDesigner', () => vscode.window.showInformationMessage(`Successfully called open in designer`));
+		vscode.commands.registerCommand('featureDesigns.editItem', (node: FeatureDesignNode) => this.editItem(node));
+		vscode.commands.registerCommand('featureDesigns.duplicateItem', (node: FeatureDesignNode) => this.duplicateItem(node));
 	}
 
 	refresh(featureDesignNode?: FeatureDesignNode): void {
@@ -26,6 +28,12 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			this._onDidChangeTreeData.fire(featureDesignNode);
 		} else {
 			this._onDidChangeTreeData.fire(null);// TODO: check
+		}
+	}
+
+	private duplicateItem(featureDesignNode: FeatureDesignNode): void {
+		if (featureDesignNode.id && featureDesignNode.designId) {
+			this.repository.duplicateItem(featureDesignNode.id, featureDesignNode.designId);
 		}
 	}
 
@@ -43,6 +51,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			this.designs = await this.repository.getFeatureDesigns();
 			return this.designs.map((i) => (
 					new FeatureDesignNode(
+						i.id,
 						i.name,
 						"design",
 						i.id,
@@ -58,8 +67,9 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			return currentDesign.items.map((i) => (
 				new FeatureDesignNode(
 					i.name,
+					i.name,
 					"item",
-					undefined,
+					currentDesign.id,
 					undefined)
 			));
 		}
@@ -72,10 +82,19 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		return designNode;
 	}
 
-	select(range: vscode.Range) {
+	private editItem(designNode: FeatureDesignNode) {
 		const editor = vscode.window.activeTextEditor;
 		if(!editor) return null;
 
+		const currentDesign = this.designs.find(x => x.id === designNode.designId);
+		if (!currentDesign|| !currentDesign.items)
+		 	return Promise.resolve([]);
+
+		this.openFile(vscode.Uri.file(currentDesign.fsPath));
+
+		const index = currentDesign.items?.findIndex(x => x.name === designNode.label) ?? 0;
+		// TODO: this is just a hack. Find a way og getting node Position
+        const range = new vscode.Range(new vscode.Position(7 + index * 3, 0), new vscode.Position(7 + index * 3, 0));
 		editor.selection = new vscode.Selection(range.start, range.end);
 
 		// Center the method in the document
@@ -89,7 +108,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		);
 	}
 	
-	private openResource(resource: vscode.Uri): void {
+	private openFile(resource: vscode.Uri): void {
 		vscode.window.showTextDocument(resource);
 	}
 

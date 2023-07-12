@@ -4,6 +4,7 @@ import * as path from 'path';
 export class FeatureDesignNode extends vscode.TreeItem {
 
 	constructor(
+		public readonly id: string,
 		public readonly label: string,
 		public readonly type: string,
 		public readonly designId: string | undefined,
@@ -18,13 +19,14 @@ export class FeatureDesignNode extends vscode.TreeItem {
 		this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
 		if (type === 'design') {
 			this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
+			if (fsPath) 
+				this.command = { command: 'featureDesigns.openFile', title: "Open File", arguments: [vscode.Uri.file(fsPath)], };
 		}
 		else if (type === 'item') {
 			this.collapsibleState = vscode.TreeItemCollapsibleState.None;
-		}
 
-		if (fsPath) {
-			this.command = { command: 'featureDesigns.openFile', title: "Open File", arguments: [vscode.Uri.file(fsPath)], };
+			this.command = { command: 'featureDesigns.editItem', title: "Edit Item", arguments: [this], };
 		}
 	}
 

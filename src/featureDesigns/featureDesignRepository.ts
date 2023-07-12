@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { _ } from '../fileSystem/fileUtilities';
-import { FeatureDesign } from './models';
+import { FeatureDesign, FeatureDesignItem } from './models';
 
 export class FeatureDesignRepository {
 
@@ -55,12 +55,51 @@ export class FeatureDesignRepository {
 			return Promise.resolve(undefined);
 		}
 	}
+		
+	public async saveFeatureDesign(design: FeatureDesign): Promise<FeatureDesign | undefined> {
+		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+		if (!workspaceRoot) {
+			vscode.window.showInformationMessage('Empty workspace');
+			return Promise.resolve(undefined);
+		}
+
+		const designsPath = path.join(workspaceRoot, "design", "modules");
+		if (!_.exists(designsPath)) {
+			vscode.window.showInformationMessage('No modules folder');
+			return Promise.resolve(undefined);
+		}
+
+		var fsPath = path.join(designsPath, design.id);
+
+		if (this.pathExists(fsPath)) {
+			fs.writeFileSync(fsPath, JSON.stringify(design, function(key, val) {
+				if (key !== "fsPath")
+					return val;
+			}, 4));
+			return Promise.resolve(design);
+		} else {
+			return Promise.resolve(undefined);
+		}
+	}
 	
-	readDirectory(uri: string): [string, string][] | Thenable<[string, string][]> {
+	public async duplicateItem(name: string, featureDesignId : string) {
+		const featureDesign = await this.getFeatureDesign(featureDesignId);
+
+		if(featureDesign) {
+			let item = featureDesign.items?.find(x => x.name === name);
+			if(item) {
+				featureDesign.items?.push(new FeatureDesignItem (item.name + "-copy", item.description));
+				await this.saveFeatureDesign(featureDesign);
+			}
+		}
+	}
+
+	private readDirectory(uri: string): [string, string][] | Thenable<[string, string][]> {
 		return this._readDirectory(uri);
 	}
 
-	async _readDirectory(uri: string): Promise<[string, string][]> {
+	private async _readDirectory(uri: string): Promise<[string, string][]> {
 		const children = await _.readdir(uri);
 
 		const result: [string, string][] = [];
