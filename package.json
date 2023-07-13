@@ -97,6 +97,14 @@
 				}
 			},
 			{
+				"command": "featureDesigns.deleteItem",
+				"title": "Duplicate Item",
+				"icon": {
+					"light": "resources/light/error.svg",
+					"dark": "resources/dark/error.svg"
+				}
+			},
+			{
 				"command": "featureDesigns.editItem",
 				"title": "Duplicate Item",
 				"icon": {
@@ -175,6 +183,11 @@
 				},
 				{
 					"command": "featureDesigns.duplicateItem",
+					"when": "view == featureDesigns && viewItem == item",
+					"group": "inline"
+				},
+				{
+					"command": "featureDesigns.deleteItem",
 					"when": "view == featureDesigns && viewItem == item",
 					"group": "inline"
 				},

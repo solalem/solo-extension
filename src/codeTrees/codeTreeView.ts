@@ -13,7 +13,6 @@ export class CodeTreeView {
 		const codeTreeRepository = new CodeTreeRepository();
 
 		const treeDataProvider = new CodeTreeProvider(
-			context, 
 			codeTreeRepository, 
 			new FeatureDesignRepository(),
 			soloOutput);

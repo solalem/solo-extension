@@ -21,20 +21,11 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		vscode.commands.registerCommand('featureDesigns.openInDesigner', () => vscode.window.showInformationMessage(`Successfully called open in designer`));
 		vscode.commands.registerCommand('featureDesigns.editItem', (node: FeatureDesignNode) => this.editItem(node));
 		vscode.commands.registerCommand('featureDesigns.duplicateItem', (node: FeatureDesignNode) => this.duplicateItem(node));
+		vscode.commands.registerCommand('featureDesigns.deleteItem', (node: FeatureDesignNode) => this.deleteItem(node));
 	}
 
-	refresh(featureDesignNode?: FeatureDesignNode): void {
-		if (featureDesignNode) {
-			this._onDidChangeTreeData.fire(featureDesignNode);
-		} else {
-			this._onDidChangeTreeData.fire(null);// TODO: check
-		}
-	}
-
-	private duplicateItem(featureDesignNode: FeatureDesignNode): void {
-		if (featureDesignNode.id && featureDesignNode.designId) {
-			this.repository.duplicateItem(featureDesignNode.id, featureDesignNode.designId);
-		}
+	refresh(): void {
+		this._onDidChangeTreeData.fire(null);
 	}
 
 	private onDocumentChanged(changeEvent: vscode.TextDocumentChangeEvent): void {
@@ -108,6 +99,20 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		);
 	}
 	
+	private duplicateItem(featureDesignNode: FeatureDesignNode): void {
+		if (featureDesignNode.id && featureDesignNode.designId) {
+			this.repository.duplicateItem(featureDesignNode.id, featureDesignNode.designId);
+			this.refresh();
+		}
+	}
+	
+	private deleteItem(featureDesignNode: FeatureDesignNode): void {
+		if (featureDesignNode.id && featureDesignNode.designId) {
+			this.repository.deleteItem(featureDesignNode.id, featureDesignNode.designId);
+			this.refresh();
+		}
+	}
+
 	private openFile(resource: vscode.Uri): void {
 		vscode.window.showTextDocument(resource);
 	}

@@ -95,6 +95,18 @@ export class FeatureDesignRepository {
 		}
 	}
 
+	public async deleteItem(name: string, featureDesignId : string) {
+		const featureDesign = await this.getFeatureDesign(featureDesignId);
+
+		if(featureDesign && featureDesign.items) {
+			let index = featureDesign.items.findIndex(x => x.name === name);
+			if(index >= 0) {
+				featureDesign.items.splice(index, 1);
+				await this.saveFeatureDesign(featureDesign);
+			}
+		}
+	}
+
 	private readDirectory(uri: string): [string, string][] | Thenable<[string, string][]> {
 		return this._readDirectory(uri);
 	}

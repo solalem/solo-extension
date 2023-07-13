@@ -15,13 +15,13 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 	private codeTree: CodeTree | undefined;
 	private templateDirectory: string;
 
-	constructor(private context: vscode.ExtensionContext, 
+	constructor(
 		private repository: CodeTreeRepository,
 		private featureDesignRepository: FeatureDesignRepository,
 		private soloOutputChannel: vscode.OutputChannel) {
-		vscode.commands.registerCommand('codeTree.previewFile', (resource) => this.generateFile(resource));
-		vscode.commands.registerCommand('codeTree.generateFile', (resource) => this.generateFile(resource, false));
-		vscode.commands.registerCommand('codeTree.refresh', (resource) => this.refresh(resource));
+		vscode.commands.registerCommand('codeTree.previewFile', (node) => this.generateFile(node));
+		vscode.commands.registerCommand('codeTree.generateFile', (node) => this.generateFile(node, false));
+		vscode.commands.registerCommand('codeTree.refresh', () => this.refresh());
 		
 		this.templateDirectory = vscode.workspace.getConfiguration('solo').get('templateDirectory', './');
 		vscode.workspace.onDidChangeConfiguration(() => {
@@ -29,13 +29,9 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		});
 	}
 
-	refresh(offset?: CodeTreeNode): void {
-		// TODO: reload
-		if (offset) {
-			this._onDidChangeTreeData.fire(offset);
-		} else {
-			this._onDidChangeTreeData.fire(null);// TODO: check
-		}
+	async refresh(): Promise<void> {
+		this.codeTree = await this.rebuildCodeTree();
+		this._onDidChangeTreeData.fire(null);
 	}
 
 	async getChildren(codeTreeNode?: CodeTreeNode): Promise<CodeTreeNode[]> {
@@ -50,19 +46,11 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 					i)
 			));
 		} else {
-			this.codeTree = await this.repository.getCodeTree();
-			if(!this.codeTree) {
-				var designs = await this.featureDesignRepository.getFeatureDesigns();
-				this.codeTree = new CodeTree('', '');
-				this.codeTree.children = await this.repository.buildCodeTree(this.templateDirectory, 'e2e', designs);
-				if (!this.codeTree.children) 
-					return [];
+			this.codeTree = 
+				await this.repository.getCodeTree() ?? 
+				await this.rebuildCodeTree();
 
-				// Save
-				this.repository.save(
-					this.codeTree, 
-					(x: string) => this.soloOutputChannel.appendLine(x));
-			}
+			if (!this.codeTree) return [];
 
 			return this.codeTree.children.map((i) => (
 				new CodeTreeNode(
@@ -75,6 +63,20 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 	getTreeItem(codeTreeNode: CodeTreeNode): vscode.TreeItem {
 		return codeTreeNode;
+	}
+
+	private async rebuildCodeTree(): Promise<CodeTree | undefined> {
+		var designs = await this.featureDesignRepository.getFeatureDesigns();
+		let newTree = new CodeTree('', '');
+		newTree.children = this.repository.buildCodeTree(this.templateDirectory, 'e2e', designs);
+		if (!newTree.children) 
+			return undefined;
+
+		// Save
+		this.repository.save(
+			newTree, 
+			(x: string) => this.soloOutputChannel.appendLine(x));
+		return newTree;
 	}
 
 	private async generateFile(node: CodeTreeNode, isPreview = true): Promise<void> {
