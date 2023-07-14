@@ -6,7 +6,7 @@ import { CodeTreeItem } from '../codeTrees/models';
 export class TemplatesRepository {
 
 	listTemplates(templatesDirectory: string, location: string) {
-		const absoluteLocation = path.join(templatesDirectory, location);
+		const absoluteLocation = path.toNamespacedPath(path.join(templatesDirectory, location));
 		var codeTreeItems: CodeTreeItem[] = [];
 		if (fs.existsSync(absoluteLocation)) {
 			var templateFiles = fs.readdirSync(absoluteLocation, { withFileTypes: true });

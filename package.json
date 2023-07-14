@@ -202,9 +202,9 @@
 			{
 				"title": "Code Tree View",
 				"properties": {
-					"solo.templateDirectory": {
+					"solo.templatesDirectory": {
 						"type": "string",
-						"default": "%userprofile%/Documents/templates"
+						"default": "C:\\Users\\r\\Documents\\templates"
 					}
 				}
 			}

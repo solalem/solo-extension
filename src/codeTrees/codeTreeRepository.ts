@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from "node:os";
 import { _ } from '../fileSystem/fileUtilities';
-import { CodeTree, CodeTreeItem } from './models';
+import { CodeTree, CodeTreeItem, SoloConfig } from './models';
 import { FeatureDesign } from '../featureDesigns/models';
 import { replacePlaceholders } from '../generators/helpers';
 
@@ -17,12 +17,6 @@ export class CodeTreeRepository {
 			return;
 		}
 
-		const soloPath = path.join(workspaceFolder.uri.fsPath, "design");
-		if (!fs.existsSync(soloPath)) {
-			vscode.window.showInformationMessage('No design folder');
-			return Promise.resolve(undefined);
-		}
-
 		const treePath = path.join(os.tmpdir(), 'solo', workspaceFolder.name, 'tree.json');
 		if (fs.existsSync(treePath)) {
 			var codeTree: CodeTree = JSON.parse(fs.readFileSync(treePath, 'utf-8'));
@@ -31,9 +25,27 @@ export class CodeTreeRepository {
 			return Promise.resolve(undefined);
 		}
 	}
+	
+	public async readConfig(): Promise<SoloConfig | undefined> {
+		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+		if (!workspaceRoot) {
+			vscode.window.showInformationMessage('Empty workspace');
+			return Promise.resolve(undefined);
+		}
 
-	buildCodeTree(templatesDirectory: string, location: string, designs: FeatureDesign[]): CodeTreeItem[] {
-		const absoluteLocation = path.join(templatesDirectory, location);
+		const configPath = path.join(workspaceRoot, "design", "config.json");
+		if (this.pathExists(configPath)) {
+			const designJson: SoloConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+			return Promise.resolve(designJson);
+		} else {
+			vscode.window.showInformationMessage('No modules folder');
+			return Promise.resolve(undefined);
+		}
+	}
+
+	buildCodeTree(templateDirectory: string, location: string, designs: FeatureDesign[]): CodeTreeItem[] {
+		const absoluteLocation = path.join(templateDirectory, location);
 		var codeTreeItems: CodeTreeItem[] = [];
 		if (fs.existsSync(absoluteLocation) && !location.startsWith('.')) {
 			var templatePaths = fs.readdirSync(absoluteLocation, { withFileTypes: true });
@@ -50,11 +62,11 @@ export class CodeTreeRepository {
 							treeItemName,
 							filePath.isDirectory() ? 'folder' : filePath.isFile() ? 'file' : '',
 							treeItemName,
-      						replacePlaceholders(childLocation, item, design, () => {}),
+							replacePlaceholders(childLocation, item, design, () => {}),
 							childLocation,
 							design.id,
 							item.name,
-							filePath.isDirectory() ? this.buildCodeTree(templatesDirectory, childLocation, designs): []));
+							filePath.isDirectory() ? this.buildCodeTree(templateDirectory, childLocation, designs): []));
 					});
 				});
 			})
@@ -110,4 +122,12 @@ export class CodeTreeRepository {
         }
 	}
 	
+	private pathExists(p: string): boolean {
+		try {
+			fs.accessSync(p);
+		} catch (err) {
+			return false;
+		}
+		return true;
+	}
 }

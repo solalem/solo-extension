@@ -9,8 +9,8 @@ import { addHelpers } from './helpers';
 export class Generator {
 
   // generate files based on template folder given
-  generate(templatesDirectory: string, workspaceDirectory: string, codeTreeItem: CodeTreeItem, model: FeatureDesignItem, context: FeatureDesign, callback: any): void {
-    var templateFile = path.join(templatesDirectory, codeTreeItem.templatePath);
+  generate(templateDirectory: string, workspaceDirectory: string, codeTreeItem: CodeTreeItem, model: FeatureDesignItem, context: FeatureDesign, callback: any): void {
+    var templateFile = path.join(templateDirectory, codeTreeItem.templatePath);
 
     var exists = fs.existsSync(templateFile);
     if (!exists) 
@@ -29,12 +29,12 @@ export class Generator {
       callback(`Checking templates in folder ${chalk.green(templateFile)}`);   
       // Go one level deeper
       codeTreeItem.children.forEach(function(this: Generator, child) {
-        this.generate(templatesDirectory, workspaceDirectory, child, model, context, callback);
+        this.generate(templateDirectory, workspaceDirectory, child, model, context, callback);
       });
     } else {
     
       // execute the compiled template and write to new file
-      var output = this.generateNode(templatesDirectory, workspaceDirectory, codeTreeItem, model, context, callback);
+      var output = this.generateNode(templateDirectory, workspaceDirectory, codeTreeItem, model, context, callback);
       if(output) {
         //var destProper = replacePlaceholders(codeTreeItem.destinationPath, model, context, callback);
         fs.writeFileSync(codeTreeItem.destinationPath, output); 
@@ -44,14 +44,14 @@ export class Generator {
   };
 
   generateNode(
-    templatesDirectory: string, 
+    templateDirectory: string, 
     workspaceDirectory: string, 
     codeTreeItem: CodeTreeItem, 
     model: FeatureDesignItem, 
     context: FeatureDesign, 
     callback: any): string | undefined {
 
-    var templateFile = path.join(templatesDirectory, codeTreeItem.templatePath);
+    var templateFile = path.join(templateDirectory, codeTreeItem.templatePath);
 
     var exists = fs.existsSync(templateFile);
     if (!exists) 

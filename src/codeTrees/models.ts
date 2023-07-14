@@ -1,4 +1,13 @@
-import { FeatureDesign } from "../featureDesigns/models";
+
+export class SoloConfig {
+
+	constructor(
+		public name: string,
+		public description: string,
+		public blueprint: string
+	) {
+	}
+}
 
 export class CodeTree {
 	public children: CodeTreeItem[]

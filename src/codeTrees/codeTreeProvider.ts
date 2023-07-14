@@ -13,7 +13,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 	readonly onDidChangeTreeData: vscode.Event<CodeTreeNode | null> = this._onDidChangeTreeData.event;
 
 	private codeTree: CodeTree | undefined;
-	private templateDirectory: string;
+	private templatesDirectory: string;
 
 	constructor(
 		private repository: CodeTreeRepository,
@@ -23,9 +23,9 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		vscode.commands.registerCommand('codeTree.generateFile', (node) => this.generateFile(node, false));
 		vscode.commands.registerCommand('codeTree.refresh', () => this.refresh());
 		
-		this.templateDirectory = vscode.workspace.getConfiguration('solo').get('templateDirectory', './');
+		this.templatesDirectory = vscode.workspace.getConfiguration('solo').get('templatesDirectory', './');
 		vscode.workspace.onDidChangeConfiguration(() => {
-			this.templateDirectory = vscode.workspace.getConfiguration('solo').get('templateDirectory', './');
+			this.templatesDirectory = vscode.workspace.getConfiguration('solo').get('templatesDirectory', './');
 		});
 	}
 
@@ -66,10 +66,17 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 	}
 
 	private async rebuildCodeTree(): Promise<CodeTree | undefined> {
+		
+		var config = await this.repository.readConfig();
+		if(!config) {
+			vscode.window.showInformationMessage('Cannot read solo config file');
+			return;
+		}
+
 		var designs = await this.featureDesignRepository.getFeatureDesigns();
 		let newTree = new CodeTree('', '');
-		newTree.children = this.repository.buildCodeTree(this.templateDirectory, 'e2e', designs);
-		if (!newTree.children) 
+		newTree.children = this.repository.buildCodeTree(path.join(this.templatesDirectory, config.blueprint), '', designs);
+		if (!newTree.children)
 			return undefined;
 
 		// Save
@@ -87,19 +94,14 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			return;
 		}
 		
-		const soloPath = path.join(workspaceFolder.uri.fsPath, "design");
-		if (!fs.existsSync(soloPath)) {
-			vscode.window.showInformationMessage('No design folder');
+		var config = await this.repository.readConfig();
+		if(!config) {
+			vscode.window.showInformationMessage('Cannot read solo config file');
 			return;
 		}
 
-		//const templatesPath = nconf.get("templatesPath") ?? this.templatePath("");
 		const treeItem = node.tag as CodeTreeItem;
 		if(!treeItem) return;
-
-		this.soloOutputChannel.appendLine(`Workspace: ${workspaceFolder.uri.fsPath}`);
-		this.soloOutputChannel.appendLine(`Templates path: ${this.templateDirectory}`);
-		this.soloOutputChannel.appendLine(`Context path: ${treeItem.designId}`);
 
 		var context = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
 		if(!context || !context.items) return;
@@ -110,10 +112,15 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		let destinationFolder = workspaceFolder.uri.fsPath;
 		if(isPreview) 
 			destinationFolder = path.join(os.tmpdir(), 'solo', workspaceFolder.name, 'previews');
-		
+
+		this.soloOutputChannel.appendLine(`Workspace: ${workspaceFolder.uri.fsPath}`);
+		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
+		this.soloOutputChannel.appendLine(`Blueprint: ${config.blueprint}`);
+		this.soloOutputChannel.appendLine(`Context path: ${treeItem.designId}`);
+
 		const generator = new Generator();
 		generator.generateNode(
-			this.templateDirectory, 
+			path.join(this.templatesDirectory, config.blueprint), 
 			destinationFolder,
 			treeItem, 
 			item,

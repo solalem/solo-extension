@@ -1,6 +1,5 @@
 export class FeatureDesign {
-	//public tree: json.Node;
-	
+
 	constructor(
 		public name: string,
 		public description: string,
