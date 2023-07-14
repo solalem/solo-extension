@@ -21,6 +21,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		private soloOutputChannel: vscode.OutputChannel) {
 		vscode.commands.registerCommand('codeTree.previewFile', (node) => this.generateFile(node));
 		vscode.commands.registerCommand('codeTree.generateFile', (node) => this.generateFile(node, false));
+		vscode.commands.registerCommand('codeTree.generateFolder', (node) => this.generateFolder(node));
 		vscode.commands.registerCommand('codeTree.refresh', () => this.refresh());
 		
 		this.templatesDirectory = vscode.workspace.getConfiguration('solo').get('templatesDirectory', './');
@@ -86,6 +87,41 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		return newTree;
 	}
 
+	
+	private async generateFolder(node: CodeTreeNode): Promise<void> {
+		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0] : undefined;
+		if (!workspaceFolder?.uri.path) {
+			vscode.window.showInformationMessage('Empty workspace');
+			return;
+		}
+		
+		var config = await this.repository.readConfig();
+		if(!config) {
+			vscode.window.showInformationMessage('Cannot read solo config file');
+			return;
+		}
+
+		const treeItem = node.tag as CodeTreeItem;
+		if(!treeItem) return;
+	
+		let destinationFolder = workspaceFolder.uri.fsPath;
+
+		this.soloOutputChannel.appendLine(`Workspace: ${destinationFolder}`);
+		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
+		this.soloOutputChannel.appendLine(`Blueprint: ${config.blueprint}`);
+
+		const generator = new Generator(this.featureDesignRepository);
+		generator.generateFolder(
+			path.join(this.templatesDirectory, config.blueprint), 
+			destinationFolder,
+			treeItem, 
+			(message: string) => { 
+				this.soloOutputChannel.appendLine(message);
+			});
+	}
+
+
 	private async generateFile(node: CodeTreeNode, isPreview = true): Promise<void> {
 		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0] : undefined;
@@ -113,12 +149,12 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		if(isPreview) 
 			destinationFolder = path.join(os.tmpdir(), 'solo', workspaceFolder.name, 'previews');
 
-		this.soloOutputChannel.appendLine(`Workspace: ${workspaceFolder.uri.fsPath}`);
+		this.soloOutputChannel.appendLine(`Workspace: ${destinationFolder}`);
 		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
 		this.soloOutputChannel.appendLine(`Blueprint: ${config.blueprint}`);
 		this.soloOutputChannel.appendLine(`Context path: ${treeItem.designId}`);
 
-		const generator = new Generator();
+		const generator = new Generator(this.featureDesignRepository);
 		generator.generateNode(
 			path.join(this.templatesDirectory, config.blueprint), 
 			destinationFolder,
@@ -126,7 +162,6 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			item,
 			context, 
 			(message: string) => { 
-				//Write to output.
 				this.soloOutputChannel.appendLine(message);
 			});
 			
