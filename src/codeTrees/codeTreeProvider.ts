@@ -21,6 +21,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		private soloOutputChannel: vscode.OutputChannel) {
 		vscode.commands.registerCommand('codeTree.previewFile', (node) => this.generateFile(node));
 		vscode.commands.registerCommand('codeTree.generateFile', (node) => this.generateFile(node, false));
+		vscode.commands.registerCommand('codeTree.compareChanges', (node) => this.compareChanges(node));
 		vscode.commands.registerCommand('codeTree.generateFolder', (node) => this.generateFolder(node));
 		vscode.commands.registerCommand('codeTree.refresh', () => this.refresh());
 		
@@ -86,7 +87,6 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			(x: string) => this.soloOutputChannel.appendLine(x));
 		return newTree;
 	}
-
 	
 	private async generateFolder(node: CodeTreeNode): Promise<void> {
 		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
@@ -120,7 +120,6 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 				this.soloOutputChannel.appendLine(message);
 			});
 	}
-
 
 	private async generateFile(node: CodeTreeNode, isPreview = true): Promise<void> {
 		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
@@ -168,5 +167,28 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		let previewPath = path.join(destinationFolder, treeItem.destinationPath);
 		if (fs.existsSync(previewPath))
 			await vscode.window.showTextDocument(vscode.Uri.file(previewPath));
+	}
+
+	private async compareChanges(node: CodeTreeNode): Promise<void> {
+		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+			? vscode.workspace.workspaceFolders[0] : undefined;
+		if (!workspaceFolder?.uri.path) {
+			vscode.window.showInformationMessage('Empty workspace');
+			return;
+		}
+
+		const treeItem = node.tag as CodeTreeItem;
+		if(!treeItem) return;
+
+		var context = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
+		if(!context || !context.items) return;
+
+		var item = context?.items?.find(x => x.name === treeItem.itemName);
+		if(!item) return;
+	
+		let destinationPath = path.join(workspaceFolder.uri.fsPath, treeItem.destinationPath);
+		let previewPath = path.join(os.tmpdir(), 'solo', workspaceFolder.name, 'previews', treeItem.destinationPath);
+		if (fs.existsSync(destinationPath) && fs.existsSync(previewPath))
+			await vscode.commands.executeCommand("vscode.diff", vscode.Uri.file(destinationPath), vscode.Uri.file(previewPath));
 	}
 }
