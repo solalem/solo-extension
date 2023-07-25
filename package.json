@@ -149,14 +149,6 @@
 				}
 			},
 			{
-				"command": "codeTree.compareChanges",
-				"title": "Generate File",
-				"icon": {
-					"light": "resources/light/dependency.svg",
-					"dark": "resources/dark/dependency.svg"
-				}
-			},
-			{
 				"command": "codeTree.generateFolder",
 				"title": "Generate Folder",
 				"icon": {
@@ -215,11 +207,6 @@
 				{
 					"command": "codeTree.generateFolder",
 					"when": "view == codeTree && viewItem == folder",
-					"group": "inline"
-				},
-				{
-					"command": "codeTree.compareChanges",
-					"when": "view == codeTree && viewItem == file",
 					"group": "inline"
 				}
 			]
