@@ -14,14 +14,14 @@ export class Generator {
 
   // generate files based on template folder given
   async generateFolder(templateDirectory: string, workspaceDirectory: string, codeTreeItem: CodeTreeItem, callback: any): Promise<void> {
-    var templateFile = path.join(templateDirectory, codeTreeItem.templatePath);
-    var exists = fs.existsSync(templateFile);
+    var templatePath = path.join(templateDirectory, codeTreeItem.templatePath);
+    var exists = fs.existsSync(templatePath);
     if (!exists) {
-      callback(`Template file ${templateFile} not found`);
+      callback(`Template file ${templatePath} not found`);
       return;
     }
 
-    var stats = fs.statSync(templateFile);
+    var stats = fs.statSync(templatePath);
     
     var isDirectory = exists && stats.isDirectory();
     if (isDirectory) {

@@ -1,9 +1,9 @@
 export class FeatureDesign {
 
 	constructor(
+		public id: string,
 		public name: string,
 		public description: string,
-		public id: string,
 		public fsPath: string,
 		public items: FeatureDesignItem[] | undefined
 	) {

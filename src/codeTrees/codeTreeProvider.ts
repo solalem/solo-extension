@@ -76,7 +76,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 		var designs = await this.featureDesignRepository.getFeatureDesigns();
 		let newTree = new CodeTree('', '');
-		newTree.children = this.repository.buildCodeTree(path.join(this.templatesDirectory, config.blueprint), '', designs);
+		newTree.children = this.repository.buildCodeTree(this.templatesDirectory, '', config, designs);
 		if (!newTree.children)
 			return undefined;
 
@@ -108,11 +108,10 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 		this.soloOutputChannel.appendLine(`Workspace: ${destinationFolder}`);
 		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
-		this.soloOutputChannel.appendLine(`Blueprint: ${config.blueprint}`);
 
 		const generator = new Generator(this.featureDesignRepository);
 		generator.generateFolder(
-			path.join(this.templatesDirectory, config.blueprint), 
+			this.templatesDirectory, 
 			destinationFolder,
 			treeItem, 
 			(message: string) => { 
@@ -137,10 +136,10 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const treeItem = node.tag as CodeTreeItem;
 		if(!treeItem) return;
 
-		var context = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
-		if(!context || !context.items) return;
+		var design = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
+		if(!design || !design.items) return;
 
-		var item = context?.items?.find(x => x.name === treeItem.itemName);
+		var item = design?.items?.find(x => x.name === treeItem.itemName);
 		if(!item) return;
 	
 		let destinationFolder = workspaceFolder.uri.fsPath;
@@ -149,16 +148,15 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 		this.soloOutputChannel.appendLine(`Workspace: ${destinationFolder}`);
 		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
-		this.soloOutputChannel.appendLine(`Blueprint: ${config.blueprint}`);
 		this.soloOutputChannel.appendLine(`Context path: ${treeItem.designId}`);
 
 		const generator = new Generator(this.featureDesignRepository);
 		generator.generateNode(
-			path.join(this.templatesDirectory, config.blueprint), 
+			this.templatesDirectory, 
 			destinationFolder,
 			treeItem, 
 			item,
-			context, 
+			design, 
 			(message: string) => { 
 				this.soloOutputChannel.appendLine(message);
 			});

@@ -3,13 +3,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from "node:os";
 import { _ } from '../fileSystem/fileUtilities';
-import { CodeTree, CodeTreeItem, SoloConfig } from './models';
+import { Blueprint, CodeTree, CodeTreeItem, Feature, SoloConfig } from './models';
 import { FeatureDesign } from '../featureDesigns/models';
 import { replacePlaceholders } from '../generators/helpers';
 
 export class CodeTreeRepository {
 
-	public async getCodeTree(): Promise<CodeTree | undefined> {
+	async getCodeTree(): Promise<CodeTree | undefined> {
 		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0] : undefined;
 		if (!workspaceFolder?.uri.path) {
@@ -26,7 +26,7 @@ export class CodeTreeRepository {
 		}
 	}
 	
-	public async readConfig(): Promise<SoloConfig | undefined> {
+	async readConfig(): Promise<SoloConfig | undefined> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		if (!workspaceRoot) {
@@ -36,41 +36,56 @@ export class CodeTreeRepository {
 
 		const configPath = path.join(workspaceRoot, "design", "config.json");
 		if (this.pathExists(configPath)) {
-			const designJson: SoloConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-			return Promise.resolve(designJson);
+			const configJson = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+			const features = configJson.features.map((f: { name: string, design: string, blueprints: any }) => {
+				const blueprints = f.blueprints
+					? Object.keys(f.blueprints).map(b => { return new Blueprint(b, f.blueprints[b])})
+					: [];
+				return new Feature(f.name, f.design, blueprints);	
+			});
+
+			return Promise.resolve(new SoloConfig(configJson.name, configJson.description, features));
 		} else {
-			vscode.window.showInformationMessage('No modules folder');
+			vscode.window.showInformationMessage('No config file found');
 			return Promise.resolve(undefined);
 		}
 	}
 
-	buildCodeTree(templateDirectory: string, location: string, designs: FeatureDesign[]): CodeTreeItem[] {
-		const absoluteLocation = path.join(templateDirectory, location);
+	buildCodeTree(templateDirectory: string, currentTemplate: string, config: SoloConfig, designs: FeatureDesign[]): CodeTreeItem[] {
 		var codeTreeItems: CodeTreeItem[] = [];
-		if (fs.existsSync(absoluteLocation) && !location.startsWith('.')) {
-			var templatePaths = fs.readdirSync(absoluteLocation, { withFileTypes: true });
-			templatePaths.filter(x => !x.name.startsWith('.')).forEach(filePath => {
-				const childLocation = path.join(location, filePath.name);
-				// for each design provided built tree without repeating nodes
-				designs.forEach(design => {
-					design.items?.forEach(item => {
-						const treeItemName = replacePlaceholders(filePath.name, item, design, () => {});
-						if(codeTreeItems.find(x => x.name == treeItemName))
-							return;
-						
-						codeTreeItems.push(new CodeTreeItem(
-							treeItemName,
-							filePath.isDirectory() ? 'folder' : filePath.isFile() ? 'file' : '',
-							treeItemName,
-							replacePlaceholders(childLocation, item, design, () => {}),
-							childLocation,
-							design.id,
-							item.name,
-							filePath.isDirectory() ? this.buildCodeTree(templateDirectory, childLocation, designs): []));
+		// for each feature provided built tree without repeating nodes
+		config.features.forEach(feature => {
+			// Read the design of this feature
+			const design = designs.find(x => x.name === feature.design);
+			if(design === undefined)
+				return;
+				
+			feature.blueprints.forEach(blueprint => {
+				const absoluteLocation = path.join(templateDirectory, blueprint.name, currentTemplate);
+				if (fs.existsSync(absoluteLocation) && !currentTemplate.startsWith('.')) {
+					const templatePaths = fs.readdirSync(absoluteLocation, { withFileTypes: true }); 
+					templatePaths.filter(x => !x.name.startsWith('.')).forEach(filePath => {
+						const childTemplate = path.join(currentTemplate, filePath.name);
+						design.items?.forEach(item => {
+							const treeItemName = replacePlaceholders(filePath.name, item, design, () => {});
+							if(codeTreeItems.find(x => x.name == treeItemName))
+								return;
+							
+							codeTreeItems.push(new CodeTreeItem(
+								treeItemName,
+								filePath.isDirectory() ? 'folder' : filePath.isFile() ? 'file' : '',
+								treeItemName,
+								replacePlaceholders(childTemplate, item, design, () => {}),
+								path.join(blueprint.name, childTemplate),
+								design.id,
+								item.name,
+								filePath.isDirectory() ? this.buildCodeTree(templateDirectory, childTemplate, config, designs): []));
+						});
 					});
-				});
+				}
 			})
-		}
+		});
+
 		return codeTreeItems;
 	}
 
