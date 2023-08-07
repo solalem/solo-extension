@@ -14,7 +14,7 @@ export class FeatureDesignRepository {
 			return Promise.resolve([]);
 		}
 
-		const designsPath = path.join(workspaceRoot, "design", "modules");
+		const designsPath = path.join(workspaceRoot, "solo", "designs");
 		if (!_.exists(designsPath)) {
 			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve([]);
@@ -39,7 +39,7 @@ export class FeatureDesignRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const designsPath = path.join(workspaceRoot, "design", "modules");
+		const designsPath = path.join(workspaceRoot, "solo", "designs");
 		if (!_.exists(designsPath)) {
 			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve(undefined);
@@ -64,7 +64,7 @@ export class FeatureDesignRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const designsPath = path.join(workspaceRoot, "design", "modules");
+		const designsPath = path.join(workspaceRoot, "solo", "designs");
 		if (!_.exists(designsPath)) {
 			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve(undefined);

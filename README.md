@@ -1,51 +1,63 @@
-# Views & View Containers
+# Introduction
 
-This sample demonstrates how to implement and contribute a tree view in VS Code. This includes:
+Design you features easily with JSON and use available code blueprints to generate your codes.
 
-- Contributing views and view containers.
-- Contributing actions in various location of the view.
-- Implementing the tree data provider for the view.
-- Creating and working with the view.
+# Example
 
-This sample provides following views
+## 1. Configure Your Solution
+Build your solution config and save it as `config.json` under a folder called `design` in your working directory.
+```json
+{
+    "name": "Project X",
+    "description": "",
+    "features": [
+        {
+            "name": "Frontend Example",
+            "design": "DesignX",
+            "blueprints": {
+                "reactjs": "1.0"
+            }
+        },
+        {
+            "name": "Backend Example",
+            "design": "DesignX",
+            "blueprints": {
+                "aspnet-rest": "1.0"
+            }
+        }
+    ]
+}
+```
+## 2. Design Your Feature
+Designing a feature is as simple as building class and property definitions. But you are not limited to following ER design style as long as your code blueprints properly consume them.
 
-- Node dependencies view
-- Ftp file explorer view
+While you are in `solo` folder, save the following code in a folder called `designs` with filename `design1.json`.
+```json
+{
+    "id": "design1.json",
+    "name": "Design1",
+    "description": "test1",
+    "solution": "SoloTest",
+    "context": "Design1",
+    "items": [
+        {
+            "name": "Foo",
+            "properties": [
+                {
+                    "name": "Id",
+                    "type": "int",
+                    "description": "id desc"
+                },
+                {
+                    "name": "Name",
+                    "type": "string",
+                    "description": "name desc"
+                }
+            ]
+        }
+    ]
+}
+```
 
-Following example shows Node dependencies view in Solo Explorer View container.
-
-![Package Explorer](./resources/solo-explorer.png)
-
-## VS Code API
-
-This sample uses following contribution points, activation events and APIs
-
-### Contribution Points
-
-- `views`
-- `viewsContainers`
-- `menu`
-  - `view/title`
-  - `view/item/context`
-
-### Activation Events
-
-- `onView:${viewId}`
-
-### APIs
-
-- `window.createTreeView`
-- `window.registerTreeDataProvider`
-- `TreeView`
-- `TreeDataProvider`
-
-Refer to [Usage](./USAGE.md) document for more details.
-
-## Running the Sample
-
-- Open this example in VS Code Insiders
-- `npm install`
-- `npm run watch`
-- `F5` to start debugging
-- Node dependencies view is shown in Package explorer view container in Activity bar.
-- FTP file explorer view should be shown in Explorer
+## 3. Open The Solo Explorer
+Check out your designs. You can also see code generator priview as code-tree.

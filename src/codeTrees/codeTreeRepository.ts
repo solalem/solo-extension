@@ -34,7 +34,7 @@ export class CodeTreeRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const configPath = path.join(workspaceRoot, "design", "config.json");
+		const configPath = path.join(workspaceRoot, "solo", "designs", "config.json");
 		if (this.pathExists(configPath)) {
 			const configJson = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 			const features = configJson.features.map((f: { name: string, design: string, blueprints: any }) => {
@@ -121,17 +121,17 @@ export class CodeTreeRepository {
 			return;
 		}
 		
-		const modulesPath = path.join(workspaceRoot, "design", "modules");
+		const modulesPath = path.join(workspaceRoot, "solo", "designs");
         if (!fs.existsSync(modulesPath)) {
             fs.mkdir(modulesPath, { recursive: true }, (err) => {
 				if (err) throw err; 
 			})
         }
-        const configFile = path.join(workspaceRoot, "design", "config.json");
+        const configFile = path.join(workspaceRoot, "solo", "config.json");
         if (!fs.existsSync(configFile)) {
             fs.writeFileSync(configFile, "{ \"name\":\"test\" }");
         }
-        const moduleFile = path.join(workspaceRoot, "design", "modules", "module1.json");
+        const moduleFile = path.join(workspaceRoot, "solo", "designs", "module1.json");
         if (!fs.existsSync(moduleFile)) {
             fs.writeFileSync(moduleFile, "{ \"name\":\"test\", \"items\": [] }");
         }
