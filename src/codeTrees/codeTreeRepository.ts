@@ -34,7 +34,7 @@ export class CodeTreeRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const configPath = path.join(workspaceRoot, "solo", "designs", "config.json");
+		const configPath = path.join(workspaceRoot, "solo", "config.json");
 		if (this.pathExists(configPath)) {
 			const configJson = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 			const features = configJson.features.map((f: { name: string, design: string, blueprints: any }) => {

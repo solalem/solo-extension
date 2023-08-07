@@ -13,14 +13,14 @@ Build your solution config and save it as `config.json` under a folder called `d
     "features": [
         {
             "name": "Frontend Example",
-            "design": "DesignX",
+            "design": "Feature 1",
             "blueprints": {
                 "reactjs": "1.0"
             }
         },
         {
             "name": "Backend Example",
-            "design": "DesignX",
+            "design": "Feature 1",
             "blueprints": {
                 "aspnet-rest": "1.0"
             }
@@ -35,10 +35,10 @@ While you are in `solo` folder, save the following code in a folder called `desi
 ```json
 {
     "id": "design1.json",
-    "name": "Design1",
+    "name": "Feature 1",
     "description": "test1",
     "solution": "SoloTest",
-    "context": "Design1",
+    "context": "Feature1",
     "items": [
         {
             "name": "Foo",
