@@ -74,7 +74,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			return;
 		}
 
-		var designs = await this.featureDesignRepository.getFeatureDesigns();
+		var designs = await this.featureDesignRepository.getFeatureDesigns(config);
 		let newTree = new CodeTree('', '');
 		newTree.children = this.repository.buildCodeTree(this.templatesDirectory, '', config, designs);
 		if (!newTree.children)

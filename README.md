@@ -13,14 +13,14 @@ Build your solution config and save it as `config.json` under a folder called `d
     "features": [
         {
             "name": "Frontend Example",
-            "design": "Feature 1",
+            "design": "design1",
             "blueprints": {
                 "reactjs": "1.0"
             }
         },
         {
             "name": "Backend Example",
-            "design": "Feature 1",
+            "design": "design1",
             "blueprints": {
                 "aspnet-rest": "1.0"
             }

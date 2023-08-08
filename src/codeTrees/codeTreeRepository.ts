@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from "node:os";
 import { _ } from '../fileSystem/fileUtilities';
-import { Blueprint, CodeTree, CodeTreeItem, Feature, SoloConfig } from './models';
+import { CodeTree, CodeTreeItem } from './models';
+import { Blueprint, Feature, SoloConfig } from '../models';
 import { FeatureDesign } from '../featureDesigns/models';
 import { replacePlaceholders } from '../generators/helpers';
 
@@ -56,7 +57,7 @@ export class CodeTreeRepository {
 		// for each feature provided built tree without repeating nodes
 		config.features.forEach(feature => {
 			// Read the design of this feature
-			const design = designs.find(x => x.name === feature.design);
+			const design = designs.find(x => x.id === feature.design);
 			if(design === undefined)
 				return;
 				

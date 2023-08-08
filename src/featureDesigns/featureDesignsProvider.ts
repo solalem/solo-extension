@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { FeatureDesignRepository } from "./featureDesignRepository";
 import { FeatureDesignNode } from "./featureDesignNode";
 import { FeatureDesign } from "./models";
+import { CodeTreeRepository } from "../codeTrees/codeTreeRepository";
 
 export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDesignNode> {
 	private _onDidChangeTreeData: vscode.EventEmitter<FeatureDesignNode | null> = new vscode.EventEmitter<FeatureDesignNode | null>();
@@ -11,7 +12,8 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 
 	constructor(
 		private context: vscode.ExtensionContext,
-		private repository: FeatureDesignRepository) {
+		private repository: FeatureDesignRepository,
+		private codeTreeRepository: CodeTreeRepository) {
 		vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
 		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
 		
@@ -38,8 +40,15 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	}
 
 	async getChildren(designNode?: FeatureDesignNode): Promise<FeatureDesignNode[]> {
+
+		var config = await this.codeTreeRepository.readConfig();
+		if(!config) {
+			vscode.window.showInformationMessage('Cannot read solo config file');
+			return Promise.resolve([]);
+		}
+
 		if(!designNode) {
-			this.designs = await this.repository.getFeatureDesigns();
+			this.designs = await this.repository.getFeatureDesigns(config);
 			return this.designs.map((i) => (
 					new FeatureDesignNode(
 						i.id,
