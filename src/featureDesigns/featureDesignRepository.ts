@@ -45,6 +45,8 @@ export class FeatureDesignRepository {
 			return Promise.resolve(undefined);
 		}
 		var fsPath = path.join(designsPath, designId);
+		if (!fsPath.endsWith('.json')) 
+			fsPath += '.json';
 
 		if (this.pathExists(fsPath)) {
 			const designJson: FeatureDesign = JSON.parse(fs.readFileSync(fsPath, 'utf-8'));
