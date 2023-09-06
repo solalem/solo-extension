@@ -1,0 +1,43 @@
+import React from 'react';
+import { useState } from 'react';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import logo from './logo.svg';
+import './App.css';
+
+import modules from './modules';
+
+function App() {
+  const [currentTab, setCurrentTab] = useState('{{context.name}}');
+
+  return (
+      <Router>
+        <div className="App">
+          <header className="App-header">
+            <img src={logo} className="App-logo" alt="logo" />
+          </header>
+          <div className="App-content">
+            <div className="App-nav">
+              {modules.map(module => (
+                <ul>
+                  <h3>{module.name}</h3>       
+                  {module.routeProps.map((routeMap) => (
+                    <li key={routeMap.key} className={currentTab === routeMap.key ? 'active' : ''}>
+                      <Link to={routeMap.path} onClick={() => setCurrentTab(routeMap.key)}>{routeMap.key}</Link>
+                    </li>
+                  ))}
+                </ul>
+              ))}
+            </div>
+
+            {modules.map(module => (
+              module.routeProps.map(routeProp => (
+                <Route {...routeProp} />
+              ))
+            ))}
+          </div>
+        </div>
+      </Router>
+  );
+}
+
+export default App;

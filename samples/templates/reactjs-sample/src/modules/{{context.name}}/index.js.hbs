@@ -1,0 +1,21 @@
+import React from 'react';
+{{#each context.models}}
+import AddEdit{{this.name}} from './pages.AddEdit{{this.name}}';
+import List{{this.name}} from './pages.List{{this.name}}';
+{{/each}}
+
+export default {
+    routeProps: [
+        {
+            key: 'List{{model.name}}',
+            path: '/{{kebab model.name}}',
+            component: List{{model.name}},
+        },
+        {
+            key: 'AddEdit{{model.name}}',
+            path: '/edit-{{kebab model.name}}',
+            component: AddEdit{{model.name}},
+        }
+    ],
+    name: '{{context.name}}',
+};

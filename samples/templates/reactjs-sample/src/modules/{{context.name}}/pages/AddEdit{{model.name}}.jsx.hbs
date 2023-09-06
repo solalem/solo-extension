@@ -1,0 +1,88 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+
+import { {{camel model.name}}Service, alertService } from '@/_services';
+
+function AddEdit{{model.name}}({ history, match }) {
+    const { id } = match.params;
+    const isAddMode = !id;
+    
+    // form validation rules 
+    const validationSchema = Yup.object().shape({
+{{#each model.properties}}
+        {{camel this.name}}: Yup.string()
+            .required('{{this.name}} is required'),
+{{/each}}
+    });
+
+    // functions to build form returned by useForm() hook
+    const { register, handleSubmit, reset, setValue, errors, formState } = useForm({
+        resolver: yupResolver(validationSchema)
+    });
+
+    function onSubmit(data) {
+        return isAddMode
+            ? create{{model.name}}(data)
+            : update{{model.name}}(id, data);
+    }
+
+    function create{{model.name}}(data) {
+        return {{camel model.name}}Service.create(data)
+            .then(() => {
+                alertService.success('{{model.name}} added', { keepAfterRouteChange: true });
+                history.push('.');
+            })
+            .catch(alertService.error);
+    }
+
+    function update{{model.name}}(id, data) {
+        return {{camel model.name}}Service.update(id, data)
+            .then(() => {
+                alertService.success('{{model.name}} updated', { keepAfterRouteChange: true });
+                history.push('..');
+            })
+            .catch(alertService.error);
+    }
+
+    const [{{camel model.name}}, set{{model.name}}] = useState({});
+    const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        if (!isAddMode) {
+            // get {{model.name}} and set form fields
+            {{camel model.name}}Service.getById(id).then({{camel model.name}} => {
+                const fields = ['name', 'email'];
+                fields.forEach(field => setValue(field, {{camel model.name}}[field]));
+                set{{model.name}}({{camel model.name}});
+            });
+        }
+    }, []);
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} onReset={reset}>
+            <h1>{isAddMode ? 'Add {{model.name}}' : 'Edit {{model.name}}'}</h1>
+{{#each model.properties}}
+            <div className="form-row">
+                <div className="form-group col-5">
+                    <label>{{this.name}}</label>
+                    <input name="name" type="text" ref={register} className={`form-control ${errors.name ? 'is-invalid' : ''}`} />
+                    <div className="invalid-feedback">{errors.{{camel this.name}}?.message}</div>
+                </div>
+            </div>
+{{/each}}
+
+            <div className="form-group">
+                <button type="submit" disabled={formState.isSubmitting} className="btn btn-primary">
+                    {formState.isSubmitting && <span className="spinner-border spinner-border-sm mr-1"></span>}
+                    Save
+                </button>
+                <Link to={isAddMode ? '.' : '..'} className="btn btn-link">Cancel</Link>
+            </div>
+        </form>
+    );
+}
+
+export { AddEdit{{model.name}} };

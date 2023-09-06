@@ -4,7 +4,12 @@ Design you features easily with JSON and use available code blueprints to genera
 
 # Example
 
-## 1. Configure Your Solution
+## 1. Prepare Templates
+Copy sample templates from `samples` to `templates` under `Documents` folder of the current user profile.
+
+> NOTE: This is going to be automated in the future. Something similar to package managers: `solo i <unique_templlate_name> -v <optional_version>`
+
+## 2. Configure Your Solution
 Build your solution config and save it as `config.json` under a folder called `design` in your working directory.
 ```json
 {
@@ -15,20 +20,20 @@ Build your solution config and save it as `config.json` under a folder called `d
             "name": "Frontend Example",
             "design": "design1",
             "blueprints": {
-                "reactjs": "1.0"
+                "reactjs-sample": "1.0"
             }
         },
         {
             "name": "Backend Example",
             "design": "design1",
             "blueprints": {
-                "aspnet-rest": "1.0"
+                "aspnet-sample": "1.0"
             }
         }
     ]
 }
 ```
-## 2. Design Your Feature
+## 3. Design Your Feature
 Designing a feature is as simple as building class and property definitions. But you are not limited to following ER design style as long as your code blueprints properly consume them.
 
 While you are in `solo` folder, save the following code in a folder called `designs` with filename `design1.json`.

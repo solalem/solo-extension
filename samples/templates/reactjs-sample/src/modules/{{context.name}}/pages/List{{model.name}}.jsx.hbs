@@ -1,0 +1,74 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+import { {{camel model.name}}Service } from '@/_services';
+
+function List{{model.name}}({ match }) {
+    const { path } = match;
+    const [list, set{{plural model.name}}] = useState(null);
+
+    useEffect(() => {
+        {{camel model.name}}Service.getAll().then(x => set{{plural model.name}}(x));
+    }, []);
+
+    function delete{{model.name}}(id) {
+        set{{plural model.name}}(list.map(x => {
+            if (x.id === id) { x.isDeleting = true; }
+            return x;
+        }));
+        {{camel model.name}}Service.delete(id).then(() => {
+            set{{plural model.name}}(list => list.filter(x => x.id !== id));
+        });
+    }
+
+    return (
+        <div>
+            <h1>{{plural model.name}}</h1>
+            <Link to={`${path}/add`} className="btn btn-sm btn-success mb-2">Add {{model.name}}</Link>
+            <table className="table table-striped">
+                <thead>
+                    <tr>
+{{#each model.properties}}
+                        <th>{{this.name}}</th>
+{{/each}}
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {list && list.map(i =>
+                        <tr key={i.id}>
+{{#each model.properties}}
+                            <td>{i.{{camel this.name}} }</td>
+{{/each}}
+                            <td>
+                                <Link to={`${path}/edit/${i.id}`} className="btn btn-sm btn-primary mr-1">Edit</Link>
+                                <button onClick={() => delete{{model.name}}(i.id)} className="btn btn-sm btn-danger" disabled={i.isDeleting}>
+                                    {i.isDeleting 
+                                        ? <span className="spinner-border spinner-border-sm"></span>
+                                        : <span>Delete</span>
+                                    }
+                                </button>
+                            </td>
+                        </tr>
+                    )}
+                    {!list &&
+                        <tr>
+                            <td colSpan="4" className="text-center">
+                                <div className="spinner-border spinner-border-lg align-center"></div>
+                            </td>
+                        </tr>
+                    }
+                    {list && !list.length &&
+                        <tr>
+                            <td colSpan="4" className="text-center">
+                                <div className="p-2">No {{plural model.name}} To Display</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+export { List{{model.name}} };
