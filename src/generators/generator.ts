@@ -14,25 +14,25 @@ export class Generator {
 
   // generate files based on template folder given
   async generateFolder(templateDirectory: string, workspaceDirectory: string, codeTreeItem: CodeTreeItem, callback: any): Promise<void> {
-    var templatePath = path.join(templateDirectory, codeTreeItem.templatePath);
-    var exists = fs.existsSync(templatePath);
+    const templatePath = path.join(templateDirectory, codeTreeItem.templatePath);
+    const exists = fs.existsSync(templatePath);
     if (!exists) {
       callback(`Template file ${templatePath} not found`);
       return;
     }
 
-    var stats = fs.statSync(templatePath);
+    const stats = fs.statSync(templatePath);
     
-    var isDirectory = exists && stats.isDirectory();
+    const isDirectory = exists && stats.isDirectory();
     if (isDirectory) {
-      var destinationPath = path.join(workspaceDirectory, codeTreeItem.destinationPath);
-      var destExists = fs.existsSync(destinationPath);
+      const destinationPath = path.join(workspaceDirectory, codeTreeItem.destinationPath);
+      const destExists = fs.existsSync(destinationPath);
       if(!destExists) 
       {
         fs.mkdir(destinationPath, { recursive: true }, (err) => 
         {
           if (err) throw err; 
-        })
+        });
       }
       
       // Go one level deeper
@@ -41,15 +41,15 @@ export class Generator {
       });
 
     } else {
-      var context = await this.featureDesignRepository.getFeatureDesign(codeTreeItem.designId);
+      const context = await this.featureDesignRepository.getFeatureDesign(codeTreeItem.designId);
       if(!context || !context.items) return;
 
-      var item = context?.items?.find(x => x.name === codeTreeItem.itemName);
+      const item = context?.items?.find(x => x.name === codeTreeItem.itemName);
       if(!item) return;
 
       this.generateNode(templateDirectory, workspaceDirectory, codeTreeItem, item, context, callback);
     }
-  };
+  }
 
   generateNode(
     templateDirectory: string, 
@@ -59,35 +59,35 @@ export class Generator {
     context: FeatureDesign, 
     callback: any): string | undefined {
 
-    var templateFile = path.join(templateDirectory, codeTreeItem.templatePath);
+    const templateFile = path.join(templateDirectory, codeTreeItem.templatePath);
 
-    var exists = fs.existsSync(templateFile);
-    if (!exists) 
+    const templateExists = fs.existsSync(templateFile);
+    if (!templateExists) 
     {
       callback(`Error: Template file not found. ${templateFile}`);   
       return undefined;
     }
 
     // Read Handlebar template 
-    var data = fs.readFileSync(templateFile);
+    const data = fs.readFileSync(templateFile);
     if (!data) 
       return undefined;
     //  if (error) throw error;
     // compile the template
     addHelpers();
-    var template = handlebars.compile(data.toString());
+    const template = handlebars.compile(data.toString());
 
     // execute the compiled template 
-    var output = template({ context: context, model: model }); 
+    const output = template({ context: context, model: model }); 
     if(output) {
       const fsPath = path.join(workspaceDirectory, codeTreeItem.destinationPath);
       const dirname = path.dirname(fsPath);
-      var exists = fs.existsSync(dirname);
-      if (!exists) {
+      const dirExists = fs.existsSync(dirname);
+      if (!dirExists) {
         fs.mkdir(dirname, { recursive: true }, (err) => 
         {
           if (err) throw err; 
-        })
+        });
       }
 
       fs.writeFileSync(fsPath, output); 
@@ -95,6 +95,6 @@ export class Generator {
     }
 
     return output;
-  };
+  }
 
 }

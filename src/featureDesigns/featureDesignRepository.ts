@@ -23,7 +23,7 @@ export class FeatureDesignRepository {
 
 		return config.features
 			.map((feature) => {
-				var fsPath = path.join(designsPath, feature.getDesignFileName());
+				const fsPath = path.join(designsPath, feature.getDesignFileName());
                 const featureDesign: FeatureDesign = JSON.parse(fs.readFileSync(fsPath, 'utf-8'));
 				featureDesign.id = feature.design;
 				featureDesign.fsPath = fsPath;
@@ -44,7 +44,7 @@ export class FeatureDesignRepository {
 			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve(undefined);
 		}
-		var fsPath = path.join(designsPath, designId);
+		let fsPath = path.join(designsPath, designId);
 		if (!fsPath.endsWith('.json')) 
 			fsPath += '.json';
 
@@ -72,7 +72,7 @@ export class FeatureDesignRepository {
 			return Promise.resolve(undefined);
 		}
 
-		var fsPath = path.join(designsPath, design.id);
+		const fsPath = path.join(designsPath, design.id);
 
 		if (this.pathExists(fsPath)) {
 			fs.writeFileSync(fsPath, JSON.stringify(design, function(key, val) {
@@ -89,7 +89,7 @@ export class FeatureDesignRepository {
 		const featureDesign = await this.getFeatureDesign(featureDesignId);
 
 		if(featureDesign) {
-			let item = featureDesign.items?.find(x => x.name === name);
+			const item = featureDesign.items?.find(x => x.name === name);
 			if(item) {
 				featureDesign.items?.push(new FeatureDesignItem (item.name + "-copy", item.description));
 				await this.saveFeatureDesign(featureDesign);
@@ -101,7 +101,7 @@ export class FeatureDesignRepository {
 		const featureDesign = await this.getFeatureDesign(featureDesignId);
 
 		if(featureDesign && featureDesign.items) {
-			let index = featureDesign.items.findIndex(x => x.name === name);
+			const index = featureDesign.items.findIndex(x => x.name === name);
 			if(index >= 0) {
 				featureDesign.items.splice(index, 1);
 				await this.saveFeatureDesign(featureDesign);
