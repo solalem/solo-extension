@@ -9,7 +9,7 @@ import { FeatureDesignRepository } from '../featureDesigns/featureDesignReposito
 export class CodeTreeView {
 	constructor(context: vscode.ExtensionContext) {
 		//Create output channel
-		let soloOutput = vscode.window.createOutputChannel("Solo");
+		const soloOutput = vscode.window.createOutputChannel("Solo");
 		const codeTreeRepository = new CodeTreeRepository();
 
 		const treeDataProvider = new CodeTreeProvider(

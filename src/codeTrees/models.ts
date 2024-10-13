@@ -1,5 +1,5 @@
 export class CodeTree {
-	public children: CodeTreeItem[]
+	public children: CodeTreeItem[];
 
 	constructor(
 		public name: string,

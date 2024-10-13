@@ -3,7 +3,8 @@ export class SoloConfig {
 	constructor(
 		public name: string,
 		public description: string,
-		public features: Feature[]
+		public features: Feature[],
+		public blueprints: Blueprint[]
 	) {
 	}
 }
@@ -13,7 +14,7 @@ export class Feature {
 	constructor(
 		public name: string,
 		public design: string,
-		public blueprints: Blueprint[],
+		public blueprint: string,
 	) {
 	}
 

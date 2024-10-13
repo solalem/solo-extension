@@ -15,7 +15,7 @@ export class CodeTreeNode extends vscode.TreeItem {
 
 		this.collapsibleState = this.type === 'folder'
 				? vscode.TreeItemCollapsibleState.Collapsed
-				: vscode.TreeItemCollapsibleState.None
+				: vscode.TreeItemCollapsibleState.None;
 		
 		this.iconPath = this.getIcon();
 		this.contextValue = this.type;

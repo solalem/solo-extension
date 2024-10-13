@@ -68,15 +68,15 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 	private async rebuildCodeTree(): Promise<CodeTree | undefined> {
 		
-		var config = await this.repository.readConfig();
+		const config = await this.repository.readConfig();
 		if(!config) {
 			vscode.window.showInformationMessage('Cannot read solo config file');
 			return;
 		}
 
-		var designs = await this.featureDesignRepository.getFeatureDesigns(config);
-		let newTree = new CodeTree('', '');
-		newTree.children = this.repository.buildCodeTree(this.templatesDirectory, '', config, designs);
+		const designs = await this.featureDesignRepository.getFeatureDesigns(config);
+		const newTree = new CodeTree('', '');
+		newTree.children = this.repository.buildCodeTree(this.templatesDirectory, config, designs);
 		if (!newTree.children)
 			return undefined;
 
@@ -95,7 +95,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			return;
 		}
 		
-		var config = await this.repository.readConfig();
+		const config = await this.repository.readConfig();
 		if(!config) {
 			vscode.window.showInformationMessage('Cannot read solo config file');
 			return;
@@ -104,7 +104,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const treeItem = node.tag as CodeTreeItem;
 		if(!treeItem) return;
 	
-		let destinationFolder = workspaceFolder.uri.fsPath;
+		const destinationFolder = workspaceFolder.uri.fsPath;
 
 		this.soloOutputChannel.appendLine(`Workspace: ${destinationFolder}`);
 		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
@@ -127,7 +127,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			return;
 		}
 		
-		var config = await this.repository.readConfig();
+		const config = await this.repository.readConfig();
 		if(!config) {
 			vscode.window.showInformationMessage('Cannot read solo config file');
 			return;
@@ -136,10 +136,10 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const treeItem = node.tag as CodeTreeItem;
 		if(!treeItem) return;
 
-		var design = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
+		const design = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
 		if(!design || !design.items) return;
 
-		var item = design?.items?.find(x => x.name === treeItem.itemName);
+		const item = design?.items?.find(x => x.name === treeItem.itemName);
 		if(!item) return;
 	
 		let destinationFolder = workspaceFolder.uri.fsPath;
@@ -161,8 +161,8 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 				this.soloOutputChannel.appendLine(message);
 			});
 			
-		let destinationPath = path.join(workspaceFolder.uri.fsPath, treeItem.destinationPath);
-		let previewPath = path.join(destinationFolder, treeItem.destinationPath);
+		const destinationPath = path.join(workspaceFolder.uri.fsPath, treeItem.destinationPath);
+		const previewPath = path.join(destinationFolder, treeItem.destinationPath);
 		if (fs.existsSync(previewPath))
 		{
 			// Compare if destination has file

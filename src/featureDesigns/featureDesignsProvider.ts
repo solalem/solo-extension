@@ -17,6 +17,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
 		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
 		
+		vscode.commands.registerCommand('featureDesigns.refresh', (uri) => this.refresh());
 		vscode.commands.registerCommand('featureDesigns.openFile', (uri) => this.openFile(uri));
 		vscode.commands.registerCommand('featureDesigns.addDesign', () => vscode.window.showInformationMessage(`Successfully called add design.`));
 		vscode.commands.registerCommand('featureDesigns.deleteDesign', (design: FeatureDesign) => vscode.window.showInformationMessage(`Successfully called delete design on ${design.name}.`));
@@ -41,7 +42,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 
 	async getChildren(designNode?: FeatureDesignNode): Promise<FeatureDesignNode[]> {
 
-		var config = await this.codeTreeRepository.readConfig();
+		const config = await this.codeTreeRepository.readConfig();
 		if(!config) {
 			vscode.window.showInformationMessage('Cannot read solo config file');
 			return Promise.resolve([]);
@@ -61,7 +62,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 
 		const currentDesign = this.designs.find(x => x.id === designNode.designId);
 		if (!currentDesign|| !currentDesign.items)
-		 	return Promise.resolve([]);
+			return Promise.resolve([]);
 
 		if (designNode.type === 'design') {
 			return currentDesign.items.map((i) => (
@@ -88,7 +89,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 
 		const currentDesign = this.designs.find(x => x.id === designNode.designId);
 		if (!currentDesign|| !currentDesign.items)
-		 	return Promise.resolve([]);
+			return Promise.resolve([]);
 
 		this.openFile(vscode.Uri.file(currentDesign.fsPath));
 

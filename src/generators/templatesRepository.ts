@@ -7,9 +7,9 @@ export class TemplatesRepository {
 
 	listTemplates(templatesDirectory: string, location: string) {
 		const absoluteLocation = path.toNamespacedPath(path.join(templatesDirectory, location));
-		var codeTreeItems: CodeTreeItem[] = [];
+		const codeTreeItems: CodeTreeItem[] = [];
 		if (fs.existsSync(absoluteLocation)) {
-			var templateFiles = fs.readdirSync(absoluteLocation, { withFileTypes: true });
+			const templateFiles = fs.readdirSync(absoluteLocation, { withFileTypes: true });
 
 			templateFiles.filter(x => x.name.startsWith('.')).forEach(filename => {
 				const childLocation = path.join(location, filename.name);
@@ -23,7 +23,7 @@ export class TemplatesRepository {
 						'',
 						'',
 						this.listTemplates(templatesDirectory, childLocation)));
-			})
+			});
 		}
 		return codeTreeItems;
 	}
