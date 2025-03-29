@@ -61,11 +61,11 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		}
 
 		const currentDesign = this.designs.find(x => x.id === designNode.designId);
-		if (!currentDesign|| !currentDesign.items)
+		if (!currentDesign|| !currentDesign.models)
 			return Promise.resolve([]);
 
 		if (designNode.type === 'design') {
-			return currentDesign.items.map((i) => (
+			return currentDesign.models.map((i) => (
 				new FeatureDesignNode(
 					i.name,
 					i.name,
@@ -88,12 +88,12 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		if(!editor) return null;
 
 		const currentDesign = this.designs.find(x => x.id === designNode.designId);
-		if (!currentDesign|| !currentDesign.items)
+		if (!currentDesign|| !currentDesign.models)
 			return Promise.resolve([]);
 
 		this.openFile(vscode.Uri.file(currentDesign.fsPath));
 
-		const index = currentDesign.items?.findIndex(x => x.name === designNode.label) ?? 0;
+		const index = currentDesign.models?.findIndex(x => x.name === designNode.label) ?? 0;
 		// TODO: this is just a hack. Find a way og getting node Position
         const range = new vscode.Range(new vscode.Position(7 + index * 3, 0), new vscode.Position(7 + index * 3, 0));
 		editor.selection = new vscode.Selection(range.start, range.end);

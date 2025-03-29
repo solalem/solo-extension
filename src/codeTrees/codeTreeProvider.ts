@@ -32,6 +32,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 	async refresh(): Promise<void> {
 		this.codeTree = await this.rebuildCodeTree();
+		vscode.window.showInformationMessage('Got new tree');
 		this._onDidChangeTreeData.fire(null);
 	}
 
@@ -75,11 +76,15 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		}
 
 		const designs = await this.featureDesignRepository.getFeatureDesigns(config);
+
 		const newTree = new CodeTree('', '');
 		newTree.children = this.repository.buildCodeTree(this.templatesDirectory, config, designs);
-		if (!newTree.children)
+		if (!newTree.children){
+			vscode.window.showInformationMessage(`Tree building resulted empty.`);
 			return undefined;
-
+		}
+		vscode.window.showInformationMessage(`Tree building resulted ${newTree.children.length} items.`);
+		
 		// Save
 		this.repository.save(
 			newTree, 
@@ -137,9 +142,9 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		if(!treeItem) return;
 
 		const design = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
-		if(!design || !design.items) return;
+		if(!design || !design.models) return;
 
-		const item = design?.items?.find(x => x.name === treeItem.itemName);
+		const item = design?.models?.find(x => x.name === treeItem.itemName);
 		if(!item) return;
 	
 		let destinationFolder = workspaceFolder.uri.fsPath;

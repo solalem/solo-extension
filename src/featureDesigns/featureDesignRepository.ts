@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { _ } from '../fileSystem/fileUtilities';
-import { FeatureDesign, FeatureDesignItem } from './models';
+import { FeatureDesign, Model } from './models';
 import { SoloConfig } from '../models';
 
 export class FeatureDesignRepository {
@@ -25,7 +25,7 @@ export class FeatureDesignRepository {
 			.map((feature) => {
 				const fsPath = path.join(designsPath, feature.getDesignFileName());
                 const featureDesign: FeatureDesign = JSON.parse(fs.readFileSync(fsPath, 'utf-8'));
-				featureDesign.id = feature.design;
+				featureDesign.id = feature.model;
 				featureDesign.fsPath = fsPath;
 				return featureDesign;
 			});
@@ -89,9 +89,9 @@ export class FeatureDesignRepository {
 		const featureDesign = await this.getFeatureDesign(featureDesignId);
 
 		if(featureDesign) {
-			const item = featureDesign.items?.find(x => x.name === name);
-			if(item) {
-				featureDesign.items?.push(new FeatureDesignItem (item.name + "-copy", item.description));
+			const model = featureDesign.models?.find(x => x.name === name);
+			if(model) {
+				featureDesign.models?.push(new Model (model.name + "-copy", model.description));
 				await this.saveFeatureDesign(featureDesign);
 			}
 		}
@@ -100,10 +100,10 @@ export class FeatureDesignRepository {
 	public async deleteItem(name: string, featureDesignId : string) {
 		const featureDesign = await this.getFeatureDesign(featureDesignId);
 
-		if(featureDesign && featureDesign.items) {
-			const index = featureDesign.items.findIndex(x => x.name === name);
+		if(featureDesign && featureDesign.models) {
+			const index = featureDesign.models.findIndex(x => x.name === name);
 			if(index >= 0) {
-				featureDesign.items.splice(index, 1);
+				featureDesign.models.splice(index, 1);
 				await this.saveFeatureDesign(featureDesign);
 			}
 		}

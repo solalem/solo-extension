@@ -5,12 +5,12 @@ export class FeatureDesign {
 		public name: string,
 		public description: string,
 		public fsPath: string,
-		public items: FeatureDesignItem[] | undefined
+		public models: Model[] | undefined
 	) {
 	}
 }
 
-export class FeatureDesignItem {
+export class Model {
 
 	constructor(
 		public name: string,

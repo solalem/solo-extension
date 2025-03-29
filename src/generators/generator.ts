@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as chalk from "chalk";
 import * as path from "path";
 import * as handlebars from "handlebars";
-import { FeatureDesign, FeatureDesignItem } from "../featureDesigns/models";
+import { FeatureDesign, Model } from "../featureDesigns/models";
 import { CodeTreeItem } from '../codeTrees/models';
 import { addHelpers } from './helpers';
 import { FeatureDesignRepository } from '../featureDesigns/featureDesignRepository';
@@ -42,9 +42,9 @@ export class Generator {
 
     } else {
       const context = await this.featureDesignRepository.getFeatureDesign(codeTreeItem.designId);
-      if(!context || !context.items) return;
+      if(!context || !context.models) return;
 
-      const item = context?.items?.find(x => x.name === codeTreeItem.itemName);
+      const item = context?.models?.find(x => x.name === codeTreeItem.itemName);
       if(!item) return;
 
       this.generateNode(templateDirectory, workspaceDirectory, codeTreeItem, item, context, callback);
@@ -55,7 +55,7 @@ export class Generator {
     templateDirectory: string, 
     workspaceDirectory: string, 
     codeTreeItem: CodeTreeItem, 
-    model: FeatureDesignItem, 
+    model: Model, 
     context: FeatureDesign, 
     callback: any): string | undefined {
 
