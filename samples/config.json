@@ -1,0 +1,14 @@
+{
+  "name": "Project X",
+  "description": "",
+  "features": [
+    {
+      "name": "Frontend Example",
+      "model": "design1",
+      "templates": [ "reactjs-sample" ]
+    }
+  ],
+  "templates": {
+    "reactjs-sample": "1.0"
+  }
+}

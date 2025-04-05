@@ -14,32 +14,12 @@ export class Feature {
 	constructor(
 		public name: string,
 		public model: string,
-		public options: Options,
-		public templateOptions: TemplateOption[],
+		public templates: string[],
 	) {
 	}
 
 	getDesignFileName(): string {
 		return this.model + ".json";
-	}
-}
-
-export class Options {
-
-	constructor(
-		public includes: string,
-		public excludes: string,
-	) {
-	}
-}
-
-export class TemplateOption {
-
-	constructor(
-		public name: string,
-		public includes: string,
-		public excludes: string,
-	) {
 	}
 }
 

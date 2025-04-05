@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as os from "node:os";
 import { _ } from '../fileSystem/fileUtilities';
 import { CodeTree, CodeTreeItem } from './models';
-import { Template, Feature, Options, SoloConfig, TemplateOption } from '../models';
+import { Template, Feature, SoloConfig } from '../models';
 import { FeatureDesign } from '../featureDesigns/models';
 import { replacePlaceholders } from '../generators/helpers';
 
@@ -38,8 +38,8 @@ export class CodeTreeRepository {
 		const configPath = path.join(workspaceRoot, "solo", "config.json");
 		if (this.pathExists(configPath)) {
 			const configJson = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-			const features = configJson.features.map((f: { name: string, model: string, options: Options, templateOptions: TemplateOption[] }) => {
-				return new Feature(f.name, f.model, f.options, f.templateOptions);
+			const features = configJson.features.map((f: { name: string, model: string, templates: string[] }) => {
+				return new Feature(f.name, f.model, f.templates);
 			});
             const templates = configJson.templates
                 ? Object.keys(configJson.templates).map(b => new Template(b, configJson.templates[b]))
@@ -62,9 +62,9 @@ export class CodeTreeRepository {
 				return;
 			}
 
-			feature.templateOptions.forEach(to => {
+			feature.templates.forEach(t => {
 				
-				const template = config.templates.find(x => x.name == to.name);
+				const template = config.templates.find(x => x.name == t);
 				vscode.window.showInformationMessage('Template: '+ template?.name + ' model: ' + model?.name);
 				if(template === undefined)
 					return;
@@ -80,7 +80,7 @@ export class CodeTreeRepository {
 		templateDirectory: string, 
 		template: Template, 
 		currentTemplateFile: string, 
-		model: FeatureDesign, 
+		design: FeatureDesign, 
 		codeTreeItems: CodeTreeItem[]) {
 		const absoluteLocation = path.join(templateDirectory, template.name, currentTemplateFile);
 		//vscode.window.showInformationMessage('Template to read: '+ absoluteLocation);
@@ -94,22 +94,22 @@ export class CodeTreeRepository {
 		templatePaths?.filter(x => !x.name.startsWith('.'))?.forEach(filePath => {
 
 			const childTemplate = path.join(currentTemplateFile, filePath.name);
-			model.models?.forEach(item => {
+			design.models?.forEach(item => {
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
-				const treeItemName = replacePlaceholders(filePath.name, item, model, () => { });
+				const treeItemName = replacePlaceholders(filePath.name, item, design, () => { });
 				if (codeTreeItems.find(x => x.name == treeItemName))
 					return;
 
 				const children: CodeTreeItem[] = [];
-				filePath.isDirectory() ? this.buildCodeTreeNode(templateDirectory, template, childTemplate, model, children) : [];
+				filePath.isDirectory() ? this.buildCodeTreeNode(templateDirectory, template, childTemplate, design, children) : [];
 				codeTreeItems.push(new CodeTreeItem(
 					treeItemName,
 					filePath.isDirectory() ? 'folder' : filePath.isFile() ? 'file' : '',
 					treeItemName,
 					// eslint-disable-next-line @typescript-eslint/no-empty-function
-					replacePlaceholders(childTemplate, item, model, () => { }),
+					replacePlaceholders(childTemplate, item, design, () => { }),
 					path.join(template.name, childTemplate),
-					model.id,
+					design.id,
 					item.name,
 					children));
 			});
