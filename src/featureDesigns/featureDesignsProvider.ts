@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
 import { FeatureDesignRepository } from "./featureDesignRepository";
 import { FeatureDesignNode } from "./featureDesignNode";
-import { FeatureDesign } from "./models";
+import { Model } from "./models";
 import { CodeTreeRepository } from "../codeTrees/codeTreeRepository";
 
 export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDesignNode> {
 	private _onDidChangeTreeData: vscode.EventEmitter<FeatureDesignNode | null> = new vscode.EventEmitter<FeatureDesignNode | null>();
 	readonly onDidChangeTreeData: vscode.Event<FeatureDesignNode | null> = this._onDidChangeTreeData.event;
 
-	private designs: FeatureDesign[] = [];
+	private models: Model[] = [];
 
 	constructor(
 		private context: vscode.ExtensionContext,
@@ -20,7 +20,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		vscode.commands.registerCommand('featureDesigns.refresh', (uri) => this.refresh());
 		vscode.commands.registerCommand('featureDesigns.openFile', (uri) => this.openFile(uri));
 		vscode.commands.registerCommand('featureDesigns.addDesign', () => vscode.window.showInformationMessage(`Successfully called add design.`));
-		vscode.commands.registerCommand('featureDesigns.deleteDesign', (design: FeatureDesign) => vscode.window.showInformationMessage(`Successfully called delete design on ${design.name}.`));
+		vscode.commands.registerCommand('featureDesigns.deleteDesign', (design: Model) => vscode.window.showInformationMessage(`Successfully called delete design on ${design.name}.`));
 		vscode.commands.registerCommand('featureDesigns.openInDesigner', () => vscode.window.showInformationMessage(`Successfully called open in designer`));
 		vscode.commands.registerCommand('featureDesigns.editItem', (node: FeatureDesignNode) => this.editItem(node));
 		vscode.commands.registerCommand('featureDesigns.duplicateItem', (node: FeatureDesignNode) => this.duplicateItem(node));
@@ -32,7 +32,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	}
 
 	private onDocumentChanged(changeEvent: vscode.TextDocumentChangeEvent): void {
-		// const currentDesign = this.designs.find(x => x.fsPath === changeEvent.document.uri.fsPath);
+		// const currentModel = this.models.find(x => x.fsPath === changeEvent.document.uri.fsPath);
 		// this.refresh();
 	}
 
@@ -49,8 +49,8 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		}
 
 		if(!designNode) {
-			this.designs = await this.repository.getFeatureDesigns(config);
-			return this.designs.map((i) => (
+			this.models = await this.repository.getFeatureDesigns(config);
+			return this.models.map((i) => (
 					new FeatureDesignNode(
 						i.id,
 						i.name,
@@ -60,31 +60,31 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 				));
 		}
 
-		const currentDesign = this.designs.find(x => x.id === designNode.designId);
-		if (!currentDesign|| !currentDesign.entities)
+		const currentModel = this.models.find(x => x.id === designNode.modelId);
+		if (!currentModel|| !currentModel.entities)
 			return Promise.resolve([]);
 
 		if (designNode.type === 'design') { // aggregate roots only
-			return currentDesign.entities
+			return currentModel.entities
 				.filter(i => i.aggregate === i.name)
 				.map((i) => (
 					new FeatureDesignNode(
 						i.name + " (aggregate)",
 						i.name,
 						"aggregate",
-						currentDesign.id,
+						currentModel.id,
 						undefined)
 				));
 		}
 		else if (designNode.type === 'aggregate') { // entities in the aggregate
-			return currentDesign.entities
+			return currentModel.entities
 				.filter(i => i.aggregate+ " (aggregate)" === designNode.id)
 				.map((i) => (
 					new FeatureDesignNode(
 						i.name,
 						i.name,
 						"item",
-						currentDesign.id,
+						currentModel.id,
 						undefined)
 				));
 		}
@@ -101,13 +101,13 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		const editor = vscode.window.activeTextEditor;
 		if(!editor) return null;
 
-		const currentDesign = this.designs.find(x => x.id === designNode.designId);
-		if (!currentDesign|| !currentDesign.entities)
+		const currentModel = this.models.find(x => x.id === designNode.modelId);
+		if (!currentModel|| !currentModel.entities)
 			return Promise.resolve([]);
 
-		this.openFile(vscode.Uri.file(currentDesign.fsPath));
+		this.openFile(vscode.Uri.file(currentModel.fsPath));
 
-		const index = currentDesign.entities?.findIndex(x => x.name === designNode.label) ?? 0;
+		const index = currentModel.entities?.findIndex(x => x.name === designNode.label) ?? 0;
 		// TODO: this is just a hack. Find a way og getting node Position
         const range = new vscode.Range(new vscode.Position(7 + index * 3, 0), new vscode.Position(7 + index * 3, 0));
 		editor.selection = new vscode.Selection(range.start, range.end);
@@ -124,15 +124,15 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 	}
 	
 	private duplicateItem(featureDesignNode: FeatureDesignNode): void {
-		if (featureDesignNode.id && featureDesignNode.designId) {
-			this.repository.duplicateItem(featureDesignNode.id, featureDesignNode.designId);
+		if (featureDesignNode.id && featureDesignNode.modelId) {
+			this.repository.duplicateItem(featureDesignNode.id, featureDesignNode.modelId);
 			this.refresh();
 		}
 	}
 	
 	private deleteItem(featureDesignNode: FeatureDesignNode): void {
-		if (featureDesignNode.id && featureDesignNode.designId) {
-			this.repository.deleteItem(featureDesignNode.id, featureDesignNode.designId);
+		if (featureDesignNode.id && featureDesignNode.modelId) {
+			this.repository.deleteItem(featureDesignNode.id, featureDesignNode.modelId);
 			this.refresh();
 		}
 	}

@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as chalk from "chalk";
 import * as path from "path";
 import * as handlebars from "handlebars";
-import { FeatureDesign, Entity } from "../featureDesigns/models";
+import { Model, Entity } from "../featureDesigns/models";
 import { CodeTreeItem } from '../codeTrees/models';
 import { addHelpers } from './helpers';
 import { FeatureDesignRepository } from '../featureDesigns/featureDesignRepository';
@@ -41,13 +41,13 @@ export class Generator {
       });
 
     } else {
-      const context = await this.featureDesignRepository.getFeatureDesign(codeTreeItem.designId);
-      if(!context || !context.entities) return;
+      const model = await this.featureDesignRepository.getFeatureDesign(codeTreeItem.modelId);
+      if(!model || !model.entities) return;
 
-      const item = context?.entities?.find(x => x.name === codeTreeItem.itemName);
+      const item = model?.entities?.find(x => x.name === codeTreeItem.itemName);
       if(!item) return;
 
-      this.generateNode(templateDirectory, workspaceDirectory, codeTreeItem, item, context, callback);
+      this.generateNode(templateDirectory, workspaceDirectory, codeTreeItem, item, model, callback);
     }
   }
 
@@ -56,7 +56,7 @@ export class Generator {
     workspaceDirectory: string, 
     codeTreeItem: CodeTreeItem, 
     entity: Entity, 
-    context: FeatureDesign, 
+    model: Model, 
     callback: any): string | undefined {
 
     const templateFile = path.join(templateDirectory, codeTreeItem.templatePath);
@@ -78,7 +78,7 @@ export class Generator {
     const template = handlebars.compile(data.toString());
 
     // execute the compiled template 
-    const output = template({ context: context, model: entity }); 
+    const output = template({ context: model, model: entity }); 
     if(output) {
       const fsPath = path.join(workspaceDirectory, codeTreeItem.destinationPath);
       const dirname = path.dirname(fsPath);

@@ -141,7 +141,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const treeItem = node.tag as CodeTreeItem;
 		if(!treeItem) return;
 
-		const design = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
+		const design = await this.featureDesignRepository.getFeatureDesign(treeItem.modelId);
 		if(!design || !design.entities) return;
 
 		const item = design?.entities?.find(x => x.name === treeItem.itemName);
@@ -153,7 +153,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 		this.soloOutputChannel.appendLine(`Workspace: ${destinationFolder}`);
 		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
-		this.soloOutputChannel.appendLine(`Context path: ${treeItem.designId}`);
+		this.soloOutputChannel.appendLine(`Model path: ${treeItem.modelId}`);
 
 		const generator = new Generator(this.featureDesignRepository);
 		generator.generateNode(

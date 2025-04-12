@@ -7,7 +7,7 @@ export class FeatureDesignNode extends vscode.TreeItem {
 		public readonly id: string,
 		public readonly label: string,
 		public readonly type: string,
-		public readonly designId: string | undefined,
+		public readonly modelId: string | undefined,
 		public readonly fsPath: string | undefined,
 	) {
 		super(label);

@@ -1,16 +1,16 @@
 import * as chalk from "chalk";
 import * as handlebars from "handlebars";
-import { FeatureDesign, Entity } from "../featureDesigns/models";
+import { Model, Entity } from "../featureDesigns/models";
 import pluralize = require("pluralize");
 
 // replace filename path placeholders using handlebars
-export const replacePlaceholders = function (path: string, entity: Entity, context: FeatureDesign, callback: any) {
+export const replacePlaceholders = function (path: string, entity: Entity, model: Model, callback: any) {
   // Handlebars doesn't like \ and / chars in filenames. So temporary replace them with some silly text
   let encodedPath = path.replace(/\\/g, "backslash");
   encodedPath = encodedPath.replace(/\//g, "forwardslash");
   addHelpers();
   const template = handlebars.compile(encodedPath);
-  let pathProper = template({ context: context, model: entity });
+  let pathProper = template({ context: model, model: entity });
 
   pathProper = pathProper.replace(/backslash/g, '\\');
   pathProper = pathProper.replace(/forwardslash/g, '/');

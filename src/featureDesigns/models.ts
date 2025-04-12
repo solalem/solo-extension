@@ -1,4 +1,4 @@
-export class FeatureDesign {
+export class Model {
 
 	constructor(
 		public id: string,

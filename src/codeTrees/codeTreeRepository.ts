@@ -5,7 +5,7 @@ import * as os from "node:os";
 import { _ } from '../fileSystem/fileUtilities';
 import { CodeTree, CodeTreeItem } from './models';
 import { Template, Feature, SoloConfig } from '../models';
-import { FeatureDesign } from '../featureDesigns/models';
+import { Model } from '../featureDesigns/models';
 import { replacePlaceholders } from '../generators/helpers';
 
 export class CodeTreeRepository {
@@ -51,12 +51,12 @@ export class CodeTreeRepository {
 		}
 	}
 
-	buildCodeTree(templateDirectory: string, config: SoloConfig, designs: FeatureDesign[]): CodeTreeItem[] {
+	buildCodeTree(templateDirectory: string, config: SoloConfig, models: Model[]): CodeTreeItem[] {
 		const codeTreeItems: CodeTreeItem[] = [];
 		// for each feature provided built tree without repeating nodes
 		config.features?.forEach(feature => {
 			// Read the model of this feature
-			const model = designs.find(x => x.id === feature.getModelId());
+			const model = models.find(x => x.id === feature.getModelId());
 			if(model === undefined) {
 				vscode.window.showErrorMessage('No model found: '+ feature.name);
 				return;
@@ -80,7 +80,7 @@ export class CodeTreeRepository {
 		templateDirectory: string, 
 		template: Template, 
 		currentTemplateFile: string, 
-		design: FeatureDesign, 
+		model: Model, 
 		codeTreeItems: CodeTreeItem[]) {
 		const absoluteLocation = path.join(templateDirectory, template.name, currentTemplateFile);
 		//vscode.window.showInformationMessage('Template to read: '+ absoluteLocation);
@@ -94,22 +94,22 @@ export class CodeTreeRepository {
 		templatePaths?.filter(x => !x.name.startsWith('.'))?.forEach(filePath => {
 
 			const childTemplate = path.join(currentTemplateFile, filePath.name);
-			design.entities?.forEach(item => {
+			model.entities?.forEach(item => {
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
-				const treeItemName = replacePlaceholders(filePath.name, item, design, () => { });
+				const treeItemName = replacePlaceholders(filePath.name, item, model, () => { });
 				if (codeTreeItems.find(x => x.name == treeItemName))
 					return;
 
 				const children: CodeTreeItem[] = [];
-				filePath.isDirectory() ? this.buildCodeTreeNode(templateDirectory, template, childTemplate, design, children) : [];
+				filePath.isDirectory() ? this.buildCodeTreeNode(templateDirectory, template, childTemplate, model, children) : [];
 				codeTreeItems.push(new CodeTreeItem(
 					treeItemName,
 					filePath.isDirectory() ? 'folder' : filePath.isFile() ? 'file' : '',
 					treeItemName,
 					// eslint-disable-next-line @typescript-eslint/no-empty-function
-					replacePlaceholders(childTemplate, item, design, () => { }),
+					replacePlaceholders(childTemplate, item, model, () => { }),
 					path.join(template.name, childTemplate),
-					design.id,
+					model.id,
 					item.name,
 					children));
 			});
