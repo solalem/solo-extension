@@ -14,6 +14,7 @@ export class FeatureDesignNode extends vscode.TreeItem {
 
 		this.tooltip = `${this.label} - ${this.type}`;
 		//this.description = this.label;
+		this.iconPath = this.getIcon();
 		this.contextValue = this.type;
 		
 		this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
@@ -29,9 +30,20 @@ export class FeatureDesignNode extends vscode.TreeItem {
 			this.command = { command: 'featureDesigns.editItem', title: "Edit Item", arguments: [this], };
 		}
 	}
-
-	iconPath = {
-		light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'list.svg'),
-		dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'list.svg')
-	};
+		
+	getIcon(): any {
+		if (this.type === "item") {
+			return {
+				light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'list.svg'),
+				dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'list.svg')
+			};
+		}
+		else if (this.type === "aggregate") {
+			return {
+				light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
+				dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
+			};
+		}
+		return null;
+	}
 }

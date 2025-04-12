@@ -64,15 +64,29 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		if (!currentDesign|| !currentDesign.models)
 			return Promise.resolve([]);
 
-		if (designNode.type === 'design') {
-			return currentDesign.models.map((i) => (
-				new FeatureDesignNode(
-					i.name,
-					i.name,
-					"item",
-					currentDesign.id,
-					undefined)
-			));
+		if (designNode.type === 'design') { // aggregate roots only
+			return currentDesign.models
+				.filter(i => i.aggregate === i.name)
+				.map((i) => (
+					new FeatureDesignNode(
+						i.name + " (aggregate)",
+						i.name,
+						"aggregate",
+						currentDesign.id,
+						undefined)
+				));
+		}
+		else if (designNode.type === 'aggregate') { // entities in the aggregate
+			return currentDesign.models
+				.filter(i => i.aggregate+ " (aggregate)" === designNode.id)
+				.map((i) => (
+					new FeatureDesignNode(
+						i.name,
+						i.name,
+						"item",
+						currentDesign.id,
+						undefined)
+				));
 		}
 
 		return Promise.resolve([]);

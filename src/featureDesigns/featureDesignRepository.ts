@@ -91,7 +91,7 @@ export class FeatureDesignRepository {
 		if(featureDesign) {
 			const model = featureDesign.models?.find(x => x.name === name);
 			if(model) {
-				featureDesign.models?.push(new Model (model.name + "-copy", model.description));
+				featureDesign.models?.push(new Model (model.name + "-copy", model.aggregate, model.description));
 				await this.saveFeatureDesign(featureDesign);
 			}
 		}

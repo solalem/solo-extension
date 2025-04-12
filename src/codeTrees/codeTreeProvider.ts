@@ -32,7 +32,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 	async refresh(): Promise<void> {
 		this.codeTree = await this.rebuildCodeTree();
-		vscode.window.showInformationMessage('Got new tree');
+		// vscode.window.showInformationMessage('Got new tree');
 		this._onDidChangeTreeData.fire(null);
 	}
 
@@ -71,7 +71,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		
 		const config = await this.repository.readConfig();
 		if(!config) {
-			vscode.window.showInformationMessage('Cannot read solo config file');
+			vscode.window.showErrorMessage('Cannot read solo config file');
 			return;
 		}
 
@@ -83,7 +83,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			vscode.window.showInformationMessage(`Tree building resulted empty.`);
 			return undefined;
 		}
-		vscode.window.showInformationMessage(`Tree building resulted ${newTree.children.length} items.`);
+		// vscode.window.showInformationMessage(`Tree building resulted ${newTree.children.length} items.`);
 		
 		// Save
 		this.repository.save(
@@ -96,13 +96,13 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0] : undefined;
 		if (!workspaceFolder?.uri.path) {
-			vscode.window.showInformationMessage('Empty workspace');
+			vscode.window.showErrorMessage('Empty workspace');
 			return;
 		}
 		
 		const config = await this.repository.readConfig();
 		if(!config) {
-			vscode.window.showInformationMessage('Cannot read solo config file');
+			vscode.window.showErrorMessage('Cannot read solo config file');
 			return;
 		}
 
@@ -128,13 +128,13 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const workspaceFolder = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0] : undefined;
 		if (!workspaceFolder?.uri.path) {
-			vscode.window.showInformationMessage('Empty workspace');
+			vscode.window.showErrorMessage('Empty workspace');
 			return;
 		}
 		
 		const config = await this.repository.readConfig();
 		if(!config) {
-			vscode.window.showInformationMessage('Cannot read solo config file');
+			vscode.window.showErrorMessage('Cannot read solo config file');
 			return;
 		}
 

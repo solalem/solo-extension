@@ -14,6 +14,7 @@ export class Model {
 
 	constructor(
 		public name: string,
+		public aggregate: string,
 		public description: string,
 	) {
 	}

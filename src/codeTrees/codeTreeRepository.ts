@@ -65,7 +65,7 @@ export class CodeTreeRepository {
 			feature.templates.forEach(t => {
 				
 				const template = config.templates.find(x => x.name == t);
-				vscode.window.showInformationMessage('Template: '+ template?.name + ' model: ' + model?.name);
+				// vscode.window.showInformationMessage('Template: '+ template?.name + ' model: ' + model?.name);
 				if(template === undefined)
 					return;
 				this.buildCodeTreeNode(templateDirectory, template, '', model, codeTreeItems);
