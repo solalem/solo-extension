@@ -61,11 +61,11 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		}
 
 		const currentDesign = this.designs.find(x => x.id === designNode.designId);
-		if (!currentDesign|| !currentDesign.models)
+		if (!currentDesign|| !currentDesign.entities)
 			return Promise.resolve([]);
 
 		if (designNode.type === 'design') { // aggregate roots only
-			return currentDesign.models
+			return currentDesign.entities
 				.filter(i => i.aggregate === i.name)
 				.map((i) => (
 					new FeatureDesignNode(
@@ -77,7 +77,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 				));
 		}
 		else if (designNode.type === 'aggregate') { // entities in the aggregate
-			return currentDesign.models
+			return currentDesign.entities
 				.filter(i => i.aggregate+ " (aggregate)" === designNode.id)
 				.map((i) => (
 					new FeatureDesignNode(
@@ -102,12 +102,12 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		if(!editor) return null;
 
 		const currentDesign = this.designs.find(x => x.id === designNode.designId);
-		if (!currentDesign|| !currentDesign.models)
+		if (!currentDesign|| !currentDesign.entities)
 			return Promise.resolve([]);
 
 		this.openFile(vscode.Uri.file(currentDesign.fsPath));
 
-		const index = currentDesign.models?.findIndex(x => x.name === designNode.label) ?? 0;
+		const index = currentDesign.entities?.findIndex(x => x.name === designNode.label) ?? 0;
 		// TODO: this is just a hack. Find a way og getting node Position
         const range = new vscode.Range(new vscode.Position(7 + index * 3, 0), new vscode.Position(7 + index * 3, 0));
 		editor.selection = new vscode.Selection(range.start, range.end);

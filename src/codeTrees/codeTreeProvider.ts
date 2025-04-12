@@ -142,9 +142,9 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		if(!treeItem) return;
 
 		const design = await this.featureDesignRepository.getFeatureDesign(treeItem.designId);
-		if(!design || !design.models) return;
+		if(!design || !design.entities) return;
 
-		const item = design?.models?.find(x => x.name === treeItem.itemName);
+		const item = design?.entities?.find(x => x.name === treeItem.itemName);
 		if(!item) return;
 	
 		let destinationFolder = workspaceFolder.uri.fsPath;

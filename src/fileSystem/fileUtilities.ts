@@ -34,12 +34,6 @@ export namespace _ {
 		return error;
 	}
 
-	export function checkCancellation(token: vscode.CancellationToken): void {
-		if (token.isCancellationRequested) {
-			throw new Error('Operation cancelled');
-		}
-	}
-
 	export function normalizeNFC(items: string): string;
 	export function normalizeNFC(items: string[]): string[];
 	export function normalizeNFC(items: string | string[]): string | string[] {
@@ -84,27 +78,10 @@ export namespace _ {
 		});
 	}
 
-	export function rmrf(path: string): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
-			rimraf(path, error => handleResult(resolve, reject, error, void 0));
-		});
-	}
-
 	export function mkdir(path: string): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
 			mkdirp(path, error => handleResult(resolve, reject, error, void 0));
 		});
 	}
 
-	export function rename(oldPath: string, newPath: string): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
-			fs.rename(oldPath, newPath, error => handleResult(resolve, reject, error, void 0));
-		});
-	}
-
-	export function unlink(path: string): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
-			fs.unlink(path, error => handleResult(resolve, reject, error, void 0));
-		});
-	}
 }

@@ -10,7 +10,7 @@ Copy sample templates from `samples` to `templates` under `Documents` folder of 
 > NOTE: This is going to be automated in the future. Something similar to package managers: `solo i <unique_templlate_name> -v <optional_version>`
 
 ## 2. Configure Your Solution
-Build your solution config and save it as `config.json` under a folder called `design` in your working directory.
+Build your solution config and save it as `solo.config` under a folder called `models` in your working directory.
 ```json
 {
   "name": "Project X",
@@ -18,7 +18,7 @@ Build your solution config and save it as `config.json` under a folder called `d
   "features": [
     {
       "name": "Frontend Example",
-      "model": "design1",
+      "model": "models/model1",
       "templates": [ "reactjs-sample" ]
     }
   ],
@@ -30,16 +30,16 @@ Build your solution config and save it as `config.json` under a folder called `d
 ## 3. Design Your Feature
 Designing a feature is as simple as building class and property definitions. But, you are not limited to following ER design style as long as your code blueprints properly consume them.
 
-While you are in `solo` folder, save the following code in a folder called `designs` with filename `design1.json`.
+Save the following code in a folder called `models` with filename `model1.json`.
 
 ```json
 {
-  "id": "design1.json",
+  "id": "model1",
   "name": "Feature 1",
   "description": "test1",
   "solution": "SoloTest",
   "context": "Feature1",
-  "models": [
+  "entities": [
     {
       "name": "Order",
       "aggregate": "Order",
@@ -106,4 +106,4 @@ While you are in `solo` folder, save the following code in a folder called `desi
 ```
 
 ## 3. Open The Solo Explorer
-Check out your designs. You can also see code generator priview as code-tree.
+Check out your models in feature design view. You can also see code generator preview as code-tree. Click on Refresh button after changes in model.

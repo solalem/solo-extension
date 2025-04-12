@@ -19,7 +19,7 @@ export class CodeTreeView {
 
 		const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-		const configured = rootPath && fs.existsSync(path.join(rootPath, "solo"));
+		const configured = rootPath && fs.existsSync(path.join(rootPath, "solo.config"));
 		vscode.commands.executeCommand('setContext', 'solo.configured', configured);
 		const newCommand = vscode.commands.registerCommand('solo.new', async () => {
 			codeTreeRepository.prepare();

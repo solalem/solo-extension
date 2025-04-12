@@ -5,12 +5,15 @@ export class FeatureDesign {
 		public name: string,
 		public description: string,
 		public fsPath: string,
-		public models: Model[] | undefined
+		public entities: Entity[] | undefined
 	) {
 	}
+
+	// For backward compatibility with old templates
+	public models = this.entities;
 }
 
-export class Model {
+export class Entity {
 
 	constructor(
 		public name: string,

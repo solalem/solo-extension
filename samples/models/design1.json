@@ -1,10 +1,10 @@
 {
-  "id": "design1.json",
+  "id": "model1.json",
   "name": "Feature 1",
   "description": "test1",
   "solution": "SoloTest",
   "context": "Feature1",
-  "models": [
+  "entities": [
     {
       "name": "Order",
       "aggregate": "Order",

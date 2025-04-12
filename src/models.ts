@@ -1,3 +1,5 @@
+import * as path from "path";
+
 export class SoloConfig {
 
 	constructor(
@@ -18,9 +20,15 @@ export class Feature {
 	) {
 	}
 
-	getDesignFileName(): string {
-		return this.model + ".json";
+	getModelId(): string {
+		const fileName = this.getModelFileName();
+		return fileName.endsWith('.json') ? fileName.slice(0, -5) : fileName;
 	}
+
+    getModelFileName(): string {
+        const fileName = path.basename(this.model);
+        return fileName.endsWith('.json') ? fileName : fileName + ".json";
+    }
 }
 
 export class Template {

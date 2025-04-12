@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { _ } from '../fileSystem/fileUtilities';
-import { FeatureDesign, Model } from './models';
+import { FeatureDesign, Entity } from './models';
 import { SoloConfig } from '../models';
 
 export class FeatureDesignRepository {
@@ -15,17 +15,17 @@ export class FeatureDesignRepository {
 			return Promise.resolve([]);
 		}
 
-		const designsPath = path.join(workspaceRoot, "solo", "designs");
-		if (!_.exists(designsPath)) {
+		const modelsPath = path.join(workspaceRoot, "models");
+		if (!_.exists(modelsPath)) {
 			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve([]);
 		}
 
 		return config.features
 			.map((feature) => {
-				const fsPath = path.join(designsPath, feature.getDesignFileName());
+				const fsPath = path.join(modelsPath, feature.getModelFileName());
                 const featureDesign: FeatureDesign = JSON.parse(fs.readFileSync(fsPath, 'utf-8'));
-				featureDesign.id = feature.model;
+				featureDesign.id = feature.getModelId();
 				featureDesign.fsPath = fsPath;
 				return featureDesign;
 			});
@@ -39,12 +39,12 @@ export class FeatureDesignRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const designsPath = path.join(workspaceRoot, "solo", "designs");
-		if (!_.exists(designsPath)) {
+		const modelsPath = path.join(workspaceRoot, "models");
+		if (!_.exists(modelsPath)) {
 			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve(undefined);
 		}
-		let fsPath = path.join(designsPath, designId);
+		let fsPath = path.join(modelsPath, designId);
 		if (!fsPath.endsWith('.json')) 
 			fsPath += '.json';
 
@@ -66,13 +66,13 @@ export class FeatureDesignRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const designsPath = path.join(workspaceRoot, "solo", "designs");
-		if (!_.exists(designsPath)) {
+		const modelsPath = path.join(workspaceRoot, "models");
+		if (!_.exists(modelsPath)) {
 			vscode.window.showInformationMessage('No modules folder');
 			return Promise.resolve(undefined);
 		}
 
-		const fsPath = path.join(designsPath, design.id);
+		const fsPath = path.join(modelsPath, design.id);
 
 		if (this.pathExists(fsPath)) {
 			fs.writeFileSync(fsPath, JSON.stringify(design, function(key, val) {
@@ -89,9 +89,9 @@ export class FeatureDesignRepository {
 		const featureDesign = await this.getFeatureDesign(featureDesignId);
 
 		if(featureDesign) {
-			const model = featureDesign.models?.find(x => x.name === name);
-			if(model) {
-				featureDesign.models?.push(new Model (model.name + "-copy", model.aggregate, model.description));
+			const entity = featureDesign.entities?.find(x => x.name === name);
+			if(entity) {
+				featureDesign.entities?.push(new Entity (entity.name + "-copy", entity.aggregate, entity.description));
 				await this.saveFeatureDesign(featureDesign);
 			}
 		}
@@ -100,10 +100,10 @@ export class FeatureDesignRepository {
 	public async deleteItem(name: string, featureDesignId : string) {
 		const featureDesign = await this.getFeatureDesign(featureDesignId);
 
-		if(featureDesign && featureDesign.models) {
-			const index = featureDesign.models.findIndex(x => x.name === name);
+		if(featureDesign && featureDesign.entities) {
+			const index = featureDesign.entities.findIndex(x => x.name === name);
 			if(index >= 0) {
-				featureDesign.models.splice(index, 1);
+				featureDesign.entities.splice(index, 1);
 				await this.saveFeatureDesign(featureDesign);
 			}
 		}

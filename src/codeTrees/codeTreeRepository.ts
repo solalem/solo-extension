@@ -35,7 +35,7 @@ export class CodeTreeRepository {
 			return Promise.resolve(undefined);
 		}
 
-		const configPath = path.join(workspaceRoot, "solo", "config.json");
+		const configPath = path.join(workspaceRoot, "solo.config");
 		if (this.pathExists(configPath)) {
 			const configJson = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 			const features = configJson.features.map((f: { name: string, model: string, templates: string[] }) => {
@@ -51,14 +51,14 @@ export class CodeTreeRepository {
 		}
 	}
 
-	buildCodeTree(templateDirectory: string, config: SoloConfig, models: FeatureDesign[]): CodeTreeItem[] {
+	buildCodeTree(templateDirectory: string, config: SoloConfig, designs: FeatureDesign[]): CodeTreeItem[] {
 		const codeTreeItems: CodeTreeItem[] = [];
 		// for each feature provided built tree without repeating nodes
 		config.features?.forEach(feature => {
 			// Read the model of this feature
-			const model = models.find(x => x.id === feature.model);
-			if(model === undefined){
-				vscode.window.showInformationMessage('No model found: '+ feature.name);
+			const model = designs.find(x => x.id === feature.getModelId());
+			if(model === undefined) {
+				vscode.window.showErrorMessage('No model found: '+ feature.name);
 				return;
 			}
 
@@ -94,7 +94,7 @@ export class CodeTreeRepository {
 		templatePaths?.filter(x => !x.name.startsWith('.'))?.forEach(filePath => {
 
 			const childTemplate = path.join(currentTemplateFile, filePath.name);
-			design.models?.forEach(item => {
+			design.entities?.forEach(item => {
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				const treeItemName = replacePlaceholders(filePath.name, item, design, () => { });
 				if (codeTreeItems.find(x => x.name == treeItemName))
@@ -148,17 +148,17 @@ export class CodeTreeRepository {
 			return;
 		}
 		
-		const modulesPath = path.join(workspaceRoot, "solo", "models");
+		const modulesPath = path.join(workspaceRoot, "models");
         if (!fs.existsSync(modulesPath)) {
             fs.mkdir(modulesPath, { recursive: true }, (err) => {
 				if (err) throw err; 
 			});
         }
-        const configFile = path.join(workspaceRoot, "solo", "config.json");
+        const configFile = path.join(workspaceRoot, "solo.config");
         if (!fs.existsSync(configFile)) {
             fs.writeFileSync(configFile, "{ \"name\":\"test\" }");
         }
-        const moduleFile = path.join(workspaceRoot, "solo", "models", "module1.json");
+        const moduleFile = path.join(workspaceRoot, "models", "module1.json");
         if (!fs.existsSync(moduleFile)) {
             fs.writeFileSync(moduleFile, "{ \"name\":\"test\", \"items\": [] }");
         }
