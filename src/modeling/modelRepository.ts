@@ -5,9 +5,9 @@ import { _ } from '../fileSystem/fileUtilities';
 import { Model, Entity } from './models';
 import { SoloConfig } from '../models';
 
-export class FeatureDesignRepository {
+export class ModelRepository {
 
-	async getFeatureDesigns(config: SoloConfig): Promise<Model[]> {
+	async getModels(config: SoloConfig): Promise<Model[]> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		if (!workspaceRoot) {
@@ -31,7 +31,7 @@ export class FeatureDesignRepository {
 			});
 	}
 	
-	public async getFeatureDesign(designId: string): Promise<Model | undefined> {
+	public async getModel(designId: string): Promise<Model | undefined> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		if (!workspaceRoot) {
@@ -58,7 +58,7 @@ export class FeatureDesignRepository {
 		}
 	}
 		
-	public async saveFeatureDesign(design: Model): Promise<Model | undefined> {
+	public async saveModel(design: Model): Promise<Model | undefined> {
 		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 		if (!workspaceRoot) {
@@ -86,25 +86,25 @@ export class FeatureDesignRepository {
 	}
 	
 	public async duplicateItem(name: string, featureDesignId : string) {
-		const model = await this.getFeatureDesign(featureDesignId);
+		const model = await this.getModel(featureDesignId);
 
 		if(model) {
 			const entity = model.entities?.find(x => x.name === name);
 			if(entity) {
 				model.entities?.push(new Entity (entity.name + "-copy", entity.aggregate, entity.description));
-				await this.saveFeatureDesign(model);
+				await this.saveModel(model);
 			}
 		}
 	}
 
 	public async deleteItem(name: string, featureDesignId : string) {
-		const model = await this.getFeatureDesign(featureDesignId);
+		const model = await this.getModel(featureDesignId);
 
 		if(model && model.entities) {
 			const index = model.entities.findIndex(x => x.name === name);
 			if(index >= 0) {
 				model.entities.splice(index, 1);
-				await this.saveFeatureDesign(model);
+				await this.saveModel(model);
 			}
 		}
 	}

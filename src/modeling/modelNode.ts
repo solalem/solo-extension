@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-export class FeatureDesignNode extends vscode.TreeItem {
+export class ModelNode extends vscode.TreeItem {
 
 	constructor(
 		public readonly id: string,

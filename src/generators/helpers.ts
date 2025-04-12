@@ -1,6 +1,6 @@
 import * as chalk from "chalk";
 import * as handlebars from "handlebars";
-import { Model, Entity } from "../featureDesigns/models";
+import { Model, Entity } from "../modeling/models";
 import pluralize = require("pluralize");
 
 // replace filename path placeholders using handlebars

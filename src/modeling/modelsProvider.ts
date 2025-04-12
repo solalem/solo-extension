@@ -1,18 +1,18 @@
 import * as vscode from "vscode";
-import { FeatureDesignRepository } from "./featureDesignRepository";
-import { FeatureDesignNode } from "./featureDesignNode";
+import { ModelRepository } from "./modelRepository";
+import { ModelNode } from "./modelNode";
 import { Model } from "./models";
 import { CodeTreeRepository } from "../codeTrees/codeTreeRepository";
 
-export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDesignNode> {
-	private _onDidChangeTreeData: vscode.EventEmitter<FeatureDesignNode | null> = new vscode.EventEmitter<FeatureDesignNode | null>();
-	readonly onDidChangeTreeData: vscode.Event<FeatureDesignNode | null> = this._onDidChangeTreeData.event;
+export class ModelsProvider implements vscode.TreeDataProvider<ModelNode> {
+	private _onDidChangeTreeData: vscode.EventEmitter<ModelNode | null> = new vscode.EventEmitter<ModelNode | null>();
+	readonly onDidChangeTreeData: vscode.Event<ModelNode | null> = this._onDidChangeTreeData.event;
 
 	private models: Model[] = [];
 
 	constructor(
 		private context: vscode.ExtensionContext,
-		private repository: FeatureDesignRepository,
+		private repository: ModelRepository,
 		private codeTreeRepository: CodeTreeRepository) {
 		vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
 		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
@@ -22,9 +22,9 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		vscode.commands.registerCommand('featureDesigns.addDesign', () => vscode.window.showInformationMessage(`Successfully called add design.`));
 		vscode.commands.registerCommand('featureDesigns.deleteDesign', (design: Model) => vscode.window.showInformationMessage(`Successfully called delete design on ${design.name}.`));
 		vscode.commands.registerCommand('featureDesigns.openInDesigner', () => vscode.window.showInformationMessage(`Successfully called open in designer`));
-		vscode.commands.registerCommand('featureDesigns.editItem', (node: FeatureDesignNode) => this.editItem(node));
-		vscode.commands.registerCommand('featureDesigns.duplicateItem', (node: FeatureDesignNode) => this.duplicateItem(node));
-		vscode.commands.registerCommand('featureDesigns.deleteItem', (node: FeatureDesignNode) => this.deleteItem(node));
+		vscode.commands.registerCommand('featureDesigns.editItem', (node: ModelNode) => this.editItem(node));
+		vscode.commands.registerCommand('featureDesigns.duplicateItem', (node: ModelNode) => this.duplicateItem(node));
+		vscode.commands.registerCommand('featureDesigns.deleteItem', (node: ModelNode) => this.deleteItem(node));
 	}
 
 	refresh(): void {
@@ -40,7 +40,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		this.refresh();
 	}
 
-	async getChildren(designNode?: FeatureDesignNode): Promise<FeatureDesignNode[]> {
+	async getChildren(designNode?: ModelNode): Promise<ModelNode[]> {
 
 		const config = await this.codeTreeRepository.readConfig();
 		if(!config) {
@@ -49,9 +49,9 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		}
 
 		if(!designNode) {
-			this.models = await this.repository.getFeatureDesigns(config);
+			this.models = await this.repository.getModels(config);
 			return this.models.map((i) => (
-					new FeatureDesignNode(
+					new ModelNode(
 						i.id,
 						i.name,
 						"design",
@@ -68,7 +68,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			return currentModel.entities
 				.filter(i => i.aggregate === i.name)
 				.map((i) => (
-					new FeatureDesignNode(
+					new ModelNode(
 						i.name + " (aggregate)",
 						i.name,
 						"aggregate",
@@ -80,7 +80,7 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 			return currentModel.entities
 				.filter(i => i.aggregate+ " (aggregate)" === designNode.id)
 				.map((i) => (
-					new FeatureDesignNode(
+					new ModelNode(
 						i.name,
 						i.name,
 						"item",
@@ -92,12 +92,12 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		return Promise.resolve([]);
 	}
 
-	getTreeItem(designNode: FeatureDesignNode): vscode.TreeItem {
+	getTreeItem(designNode: ModelNode): vscode.TreeItem {
 		// const notFound: vscode.TreeItem = { label: "todo:none" };
 		return designNode;
 	}
 
-	private editItem(designNode: FeatureDesignNode) {
+	private editItem(designNode: ModelNode) {
 		const editor = vscode.window.activeTextEditor;
 		if(!editor) return null;
 
@@ -123,14 +123,14 @@ export class FeatureDesignsProvider implements vscode.TreeDataProvider<FeatureDe
 		);
 	}
 	
-	private duplicateItem(featureDesignNode: FeatureDesignNode): void {
+	private duplicateItem(featureDesignNode: ModelNode): void {
 		if (featureDesignNode.id && featureDesignNode.modelId) {
 			this.repository.duplicateItem(featureDesignNode.id, featureDesignNode.modelId);
 			this.refresh();
 		}
 	}
 	
-	private deleteItem(featureDesignNode: FeatureDesignNode): void {
+	private deleteItem(featureDesignNode: ModelNode): void {
 		if (featureDesignNode.id && featureDesignNode.modelId) {
 			this.repository.deleteItem(featureDesignNode.id, featureDesignNode.modelId);
 			this.refresh();

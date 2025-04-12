@@ -5,7 +5,7 @@ import * as os from "node:os";
 import { _ } from '../fileSystem/fileUtilities';
 import { CodeTree, CodeTreeItem } from './models';
 import { Template, Feature, SoloConfig } from '../models';
-import { Model } from '../featureDesigns/models';
+import { Model } from '../modeling/models';
 import { replacePlaceholders } from '../generators/helpers';
 
 export class CodeTreeRepository {

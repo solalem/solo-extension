@@ -4,7 +4,7 @@ import * as path from 'path';
 
 import { CodeTreeProvider } from './codeTreeProvider';
 import { CodeTreeRepository } from './codeTreeRepository';
-import { FeatureDesignRepository } from '../featureDesigns/featureDesignRepository';
+import { ModelRepository } from '../modeling/modelRepository';
 
 export class CodeTreeView {
 	constructor(context: vscode.ExtensionContext) {
@@ -14,7 +14,7 @@ export class CodeTreeView {
 
 		const treeDataProvider = new CodeTreeProvider(
 			codeTreeRepository, 
-			new FeatureDesignRepository(),
+			new ModelRepository(),
 			soloOutput);
 
 		const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))

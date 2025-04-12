@@ -2,14 +2,14 @@ import * as fs from 'fs';
 import * as chalk from "chalk";
 import * as path from "path";
 import * as handlebars from "handlebars";
-import { Model, Entity } from "../featureDesigns/models";
+import { Model, Entity } from "../modeling/models";
 import { CodeTreeItem } from '../codeTrees/models';
 import { addHelpers } from './helpers';
-import { FeatureDesignRepository } from '../featureDesigns/featureDesignRepository';
+import { ModelRepository } from '../modeling/modelRepository';
 
 export class Generator {
 
-	constructor(private featureDesignRepository: FeatureDesignRepository) {
+	constructor(private featureDesignRepository: ModelRepository) {
 	}
 
   // generate files based on template folder given
@@ -41,7 +41,7 @@ export class Generator {
       });
 
     } else {
-      const model = await this.featureDesignRepository.getFeatureDesign(codeTreeItem.modelId);
+      const model = await this.featureDesignRepository.getModel(codeTreeItem.modelId);
       if(!model || !model.entities) return;
 
       const item = model?.entities?.find(x => x.name === codeTreeItem.itemName);

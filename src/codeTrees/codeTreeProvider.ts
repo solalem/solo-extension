@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { CodeTreeRepository } from "./codeTreeRepository";
 import { CodeTreeNode } from "./codeTreeNode";
 import { CodeTree, CodeTreeItem } from "./models";
-import { FeatureDesignRepository } from "../featureDesigns/featureDesignRepository";
+import { ModelRepository } from "../modeling/modelRepository";
 import { Generator } from "../generators/generator";
 import path = require("path");
 
@@ -17,7 +17,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 	constructor(
 		private repository: CodeTreeRepository,
-		private featureDesignRepository: FeatureDesignRepository,
+		private featureDesignRepository: ModelRepository,
 		private soloOutputChannel: vscode.OutputChannel) {
 		vscode.commands.registerCommand('codeTree.previewFile', (node) => this.generateFile(node));
 		vscode.commands.registerCommand('codeTree.generateFile', (node) => this.generateFile(node, false));
@@ -75,7 +75,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			return;
 		}
 
-		const designs = await this.featureDesignRepository.getFeatureDesigns(config);
+		const designs = await this.featureDesignRepository.getModels(config);
 
 		const newTree = new CodeTree('', '');
 		newTree.children = this.repository.buildCodeTree(this.templatesDirectory, config, designs);
@@ -141,7 +141,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const treeItem = node.tag as CodeTreeItem;
 		if(!treeItem) return;
 
-		const design = await this.featureDesignRepository.getFeatureDesign(treeItem.modelId);
+		const design = await this.featureDesignRepository.getModel(treeItem.modelId);
 		if(!design || !design.entities) return;
 
 		const item = design?.entities?.find(x => x.name === treeItem.itemName);
