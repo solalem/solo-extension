@@ -99,4 +99,19 @@ export const addHelpers = function() {
     }
   });
 
+  handlebars.registerHelper("pascal", function (aString) {
+    return pascalCase(aString);
+  });
+
+  handlebars.registerHelper("pascals", function (aString) {
+    return pascalCase(pluralize(aString));
+  });
+
+  function pascalCase(aString) {
+    return aString && aString
+      .replace(/[-_\s]+/g, ' ') // Replace underscores, hyphens, and spaces with spaces
+      .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('');
+  }
 };

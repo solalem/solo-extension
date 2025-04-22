@@ -16,7 +16,7 @@ export class Feature {
 	constructor(
 		public name: string,
 		public model: string,
-		public templates: string[],
+		public implementations: Implementation[],
 	) {
 	}
 
@@ -29,6 +29,15 @@ export class Feature {
         const fileName = path.basename(this.model);
         return fileName.endsWith('.json') ? fileName : fileName + ".json";
     }
+}
+
+export class Implementation {
+
+	constructor(
+		public template: string,
+		public workingDirectory: string,
+	) {
+	}
 }
 
 export class Template {

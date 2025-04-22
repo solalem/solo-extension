@@ -19,7 +19,7 @@ Build your solution config and save it as `solo.config` under a folder called `m
     {
       "name": "Frontend Example",
       "model": "models/model1",
-      "templates": [ "reactjs-sample" ]
+      "implementations": [ { "template": "reactjs-sample" } ]
     }
   ],
   "templates": {

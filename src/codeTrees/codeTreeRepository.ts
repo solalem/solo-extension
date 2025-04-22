@@ -38,8 +38,8 @@ export class CodeTreeRepository {
 		const configPath = path.join(workspaceRoot, "solo.config");
 		if (this.pathExists(configPath)) {
 			const configJson = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-			const features = configJson.features.map((f: { name: string, model: string, templates: string[] }) => {
-				return new Feature(f.name, f.model, f.templates);
+			const features = configJson.features.map((f: { name: string, model: string, implementations: any[] }) => {
+				return new Feature(f.name, f.model, f.implementations);
 			});
             const templates = configJson.templates
                 ? Object.keys(configJson.templates).map(b => new Template(b, configJson.templates[b]))
@@ -62,9 +62,9 @@ export class CodeTreeRepository {
 				return;
 			}
 
-			feature.templates.forEach(t => {
+			feature.implementations.forEach(t => {
 				
-				const template = config.templates.find(x => x.name == t);
+				const template = config.templates.find(x => x.name == t.template);
 				// vscode.window.showInformationMessage('Template: '+ template?.name + ' model: ' + model?.name);
 				if(template === undefined)
 					return;
