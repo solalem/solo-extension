@@ -11,14 +11,12 @@
 		"url": "https://github.com/Microsoft/vscode-extension-samples"
 	},
 	"engines": {
-		"vscode": "^1.71.0"
+		"vscode": "^1.99.3"
 	},
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
-		"onView:featureDesigns",
-		"onView:codeTree",
 		"onLanguage:json",
 		"onLanguage:jsonc",
 		"onCommand:testView.reveal"
@@ -44,14 +42,14 @@
 		"views": {
 			"solo-explorer": [
 				{
-					"id": "codeTree",
-					"name": "Code Tree View"
-				},
-				{
 					"id": "featureDesigns",
 					"name": "Feature Designs",
 					"icon": "media/dep.svg",
 					"contextualTitle": "Feature Designs"
+				},
+				{
+					"id": "codeTree",
+					"name": "Code Tree View"
 				}
 			]
 		},
@@ -211,6 +209,36 @@
 				}
 			]
 		},
+		"chatParticipants": [
+            {
+                "id": "chat.solo",
+                "name": "solo",
+                "fullName": "Solo",
+                "description": "Hi. Can I help with your modelling and and templating tasks?",
+                "isSticky": true,
+				"commands": [
+					{
+						"name": "model",
+						"description": "Take user ask and create a domain model for it with specific json schema."
+					},
+					{
+						"name": "template",
+						"description": "Create a template project for user specified technology stack."
+					}
+				],
+				"disambiguation": [
+					{
+						"category": "solo",
+						"description": "The user wants to help on domain modeling and code generation with available and custome templates.",
+						"examples": [
+							"Show me a domain model for example ERP project",
+							"Can you help me with inventory management modeling?",
+							"Can you help me with code generation with custom templates?"
+						]
+					}
+				]
+            }
+        ],
 		"configuration": [
 			{
 				"title": "Code Tree View",
