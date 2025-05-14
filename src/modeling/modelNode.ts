@@ -22,12 +22,12 @@ export class ModelNode extends vscode.TreeItem {
 			this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 			if (fsPath) 
-				this.command = { command: 'featureDesigns.openFile', title: "Open File", arguments: [vscode.Uri.file(fsPath)], };
+				this.command = { command: 'modelings.openFile', title: "Open File", arguments: [vscode.Uri.file(fsPath)], };
 		}
 		else if (type === 'item') {
 			this.collapsibleState = vscode.TreeItemCollapsibleState.None;
 
-			this.command = { command: 'featureDesigns.editItem', title: "Edit Item", arguments: [this], };
+			this.command = { command: 'modelings.editItem', title: "Edit Item", arguments: [this], };
 		}
 	}
 		

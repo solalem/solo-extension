@@ -85,8 +85,8 @@ export class ModelRepository {
 		}
 	}
 	
-	public async duplicateItem(name: string, featureDesignId : string) {
-		const model = await this.getModel(featureDesignId);
+	public async duplicateItem(name: string, modelId : string) {
+		const model = await this.getModel(modelId);
 
 		if(model) {
 			const entity = model.entities?.find(x => x.name === name);
@@ -97,8 +97,8 @@ export class ModelRepository {
 		}
 	}
 
-	public async deleteItem(name: string, featureDesignId : string) {
-		const model = await this.getModel(featureDesignId);
+	public async deleteItem(name: string, modelId : string) {
+		const model = await this.getModel(modelId);
 
 		if(model && model.entities) {
 			const index = model.entities.findIndex(x => x.name === name);

@@ -53,6 +53,17 @@ export class CodeTreeRepository {
 
 	buildCodeTree(templateDirectory: string, config: SoloConfig, models: Model[]): CodeTreeItem[] {
 		const codeTreeItems: CodeTreeItem[] = [];
+
+		// relative paths point to working dir
+		if (!path.isAbsolute(templateDirectory)) {
+		
+			const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+				? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+			if (workspaceRoot) {
+				templateDirectory = path.join(workspaceRoot, templateDirectory);
+			}
+		}
+
 		// for each feature provided built tree without repeating nodes
 		config.features?.forEach(feature => {
 			// Read the model of this feature
@@ -86,7 +97,7 @@ export class CodeTreeRepository {
 		//vscode.window.showInformationMessage('Template to read: '+ absoluteLocation);
 
 		if (!fs.existsSync(absoluteLocation) || currentTemplateFile.startsWith('.')) {
-			vscode.window.showInformationMessage('Template not found or path starts with dot. Returning...');
+			vscode.window.showInformationMessage('Template not found or path starts with dot. Returning...' + absoluteLocation);
 			return;
 		}
 

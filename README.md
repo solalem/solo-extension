@@ -2,15 +2,35 @@
 
 Design you features easily with JSON and use available code blueprints to generate your codes.
 
-# Example
+# Development
 
-## 1. Prepare Templates
-Copy sample templates from `samples` to `templates` under `Documents` folder of the current user profile.
+Clone the repo.
+
+Install npm dependencies.
+
+Open extension development host with F5 or run from Debug tab
+
+In the opened host vs code session, open the `samples` folder
+
+Open vs code `Settings` and update `solo.templateDirectory` to `templates` if not set already. This will use local sample template.
+
+Use the Feature to manage model entities and the Code Tree panel to see the generated code structure from you models based on sample template.
+
+# Extension Usage
+
+Install extension from marketplace. COMING SOON.
+
+## 1. Prepare
+
+Copy sample templates from `samples` to `templates` under directory of your choice (Default is `Documents/templates` under the current user profile). You should change vscode setting for `solo.templateDirectory` to point to the changed location.
 
 > NOTE: This is going to be automated in the future. Something similar to package managers: `solo i <unique_templlate_name> -v <optional_version>`
 
+> The following steps describe the details of setting up solution and models. You can copy files from samples folder if you don't need to follow them.
+
 ## 2. Configure Your Solution
-Build your solution config and save it as `solo.config` under a folder called `models` in your working directory.
+Build your solution config and save it as `solo.config` under a folder called `models` in your working directory. This is the main file that controls the whole solution/ project.
+
 ```json
 {
   "name": "Project X",

@@ -42,7 +42,7 @@
 		"views": {
 			"solo-explorer": [
 				{
-					"id": "featureDesigns",
+					"id": "modeling",
 					"name": "Feature Designs",
 					"icon": "media/dep.svg",
 					"contextualTitle": "Feature Designs"
@@ -55,7 +55,7 @@
 		},
 		"commands": [
 			{
-				"command": "featureDesigns.refresh",
+				"command": "modeling.refresh",
 				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -63,7 +63,7 @@
 				}
 			},
 			{
-				"command": "featureDesigns.previewCode",
+				"command": "modeling.previewCode",
 				"title": "Preview Code",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -71,11 +71,11 @@
 				}
 			},
 			{
-				"command": "featureDesigns.addDesign",
+				"command": "modeling.addDesign",
 				"title": "Add Design"
 			},
 			{
-				"command": "featureDesigns.deleteDesign",
+				"command": "modeling.deleteDesign",
 				"title": "Delete Design",
 				"icon": {
 					"light": "resources/light/error.svg",
@@ -83,11 +83,11 @@
 				}
 			},
 			{
-				"command": "featureDesigns.openInDesigner",
+				"command": "modeling.openInDesigner",
 				"title": "Open In Designer"
 			},
 			{
-				"command": "featureDesigns.duplicateItem",
+				"command": "modeling.duplicateItem",
 				"title": "Duplicate Item",
 				"icon": {
 					"light": "resources/light/dependency.svg",
@@ -95,7 +95,7 @@
 				}
 			},
 			{
-				"command": "featureDesigns.deleteItem",
+				"command": "modeling.deleteItem",
 				"title": "Duplicate Item",
 				"icon": {
 					"light": "resources/light/error.svg",
@@ -103,7 +103,7 @@
 				}
 			},
 			{
-				"command": "featureDesigns.editItem",
+				"command": "modeling.editItem",
 				"title": "Duplicate Item",
 				"icon": {
 					"light": "resources/light/edit.svg",
@@ -111,7 +111,7 @@
 				}
 			},
 			{
-				"command": "featureDesigns.changeTitle",
+				"command": "modeling.changeTitle",
 				"title": "Change Title"
 			},
 			{
@@ -163,17 +163,17 @@
 			],
 			"view/title": [
 				{
-					"command": "featureDesigns.refresh",
-					"when": "view == featureDesigns",
+					"command": "modeling.refresh",
+					"when": "view == modeling",
 					"group": "navigation"
 				},
 				{
-					"command": "featureDesigns.addDesign",
-					"when": "view == featureDesigns"
+					"command": "modeling.addDesign",
+					"when": "view == modeling"
 				},
 				{
-					"command": "featureDesigns.openInDesigner",
-					"when": "view == featureDesigns"
+					"command": "modeling.openInDesigner",
+					"when": "view == modeling"
 				},
 				{
 					"command": "codeTree.refresh",
@@ -183,18 +183,18 @@
 			],
 			"view/item/context": [
 				{
-					"command": "featureDesigns.deleteDesign",
-					"when": "view == featureDesigns && viewItem == design",
+					"command": "modeling.deleteDesign",
+					"when": "view == modeling && viewItem == design",
 					"group": "inline"
 				},
 				{
-					"command": "featureDesigns.duplicateItem",
-					"when": "view == featureDesigns && viewItem == item",
+					"command": "modeling.duplicateItem",
+					"when": "view == modeling && viewItem == item",
 					"group": "inline"
 				},
 				{
-					"command": "featureDesigns.deleteItem",
-					"when": "view == featureDesigns && viewItem == item",
+					"command": "modeling.deleteItem",
+					"when": "view == modeling && viewItem == item",
 					"group": "inline"
 				},
 				{
@@ -245,7 +245,7 @@
 				"properties": {
 					"solo.templatesDirectory": {
 						"type": "string",
-						"default": "C:\\Users\\r\\Documents\\templates"
+						"default": "templates"
 					}
 				}
 			}

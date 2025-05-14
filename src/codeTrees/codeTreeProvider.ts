@@ -17,7 +17,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 	constructor(
 		private repository: CodeTreeRepository,
-		private featureDesignRepository: ModelRepository,
+		private modelRepository: ModelRepository,
 		private soloOutputChannel: vscode.OutputChannel) {
 		vscode.commands.registerCommand('codeTree.previewFile', (node) => this.generateFile(node));
 		vscode.commands.registerCommand('codeTree.generateFile', (node) => this.generateFile(node, false));
@@ -75,7 +75,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 			return;
 		}
 
-		const designs = await this.featureDesignRepository.getModels(config);
+		const designs = await this.modelRepository.getModels(config);
 
 		const newTree = new CodeTree('', '');
 		newTree.children = this.repository.buildCodeTree(this.templatesDirectory, config, designs);
@@ -114,7 +114,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		this.soloOutputChannel.appendLine(`Workspace: ${destinationFolder}`);
 		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
 
-		const generator = new Generator(this.featureDesignRepository);
+		const generator = new Generator(this.modelRepository);
 		generator.generateFolder(
 			this.templatesDirectory, 
 			destinationFolder,
@@ -141,7 +141,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		const treeItem = node.tag as CodeTreeItem;
 		if(!treeItem) return;
 
-		const design = await this.featureDesignRepository.getModel(treeItem.modelId);
+		const design = await this.modelRepository.getModel(treeItem.modelId);
 		if(!design || !design.entities) return;
 
 		const item = design?.entities?.find(x => x.name === treeItem.itemName);
@@ -155,7 +155,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
 		this.soloOutputChannel.appendLine(`Model path: ${treeItem.modelId}`);
 
-		const generator = new Generator(this.featureDesignRepository);
+		const generator = new Generator(this.modelRepository);
 		generator.generateNode(
 			this.templatesDirectory, 
 			destinationFolder,

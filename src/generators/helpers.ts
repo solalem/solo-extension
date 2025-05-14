@@ -81,23 +81,6 @@ export const addHelpers = function() {
       return opts.inverse(this);
     }
   });
-  
-  handlebars.registerHelper('tsType', function (type) {
-    switch (type.toLowerCase()) {
-      case 'string':
-        return 'string';
-      case 'int':
-      case 'double':
-      case 'float':
-        return 'number';
-      case 'uuid':
-        return 'string';
-      case 'date':
-        return 'number';
-      default:
-        return 'any';
-    }
-  });
 
   handlebars.registerHelper("pascal", function (aString) {
     return pascalCase(aString);
@@ -112,6 +95,22 @@ export const addHelpers = function() {
       .replace(/[-_\s]+/g, ' ') // Replace underscores, hyphens, and spaces with spaces
       .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('');
+  }
+
+  handlebars.registerHelper("title", function (aString) {
+    return titleCase(aString);
+  });
+
+  handlebars.registerHelper("titles", function (aString) {
+    return titleCase(pluralize(aString));
+  });
+
+  function titleCase(aString) {
+    return aString && aString
+      .replace(/[-_\s]+/g, ' ') // Replace underscores, hyphens, and spaces with spaces
+      .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+      .map(word => word.charAt(0).toUpperCase() + ' ' + word.slice(1).toLowerCase())
       .join('');
   }
 };

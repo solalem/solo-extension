@@ -17,14 +17,14 @@ export class ModelsProvider implements vscode.TreeDataProvider<ModelNode> {
 		vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
 		vscode.workspace.onDidSaveTextDocument((e) => this.onDocumentSaved(e));
 		
-		vscode.commands.registerCommand('featureDesigns.refresh', (uri) => this.refresh());
-		vscode.commands.registerCommand('featureDesigns.openFile', (uri) => this.openFile(uri));
-		vscode.commands.registerCommand('featureDesigns.addDesign', () => vscode.window.showInformationMessage(`Successfully called add design.`));
-		vscode.commands.registerCommand('featureDesigns.deleteDesign', (design: Model) => vscode.window.showInformationMessage(`Successfully called delete design on ${design.name}.`));
-		vscode.commands.registerCommand('featureDesigns.openInDesigner', () => vscode.window.showInformationMessage(`Successfully called open in designer`));
-		vscode.commands.registerCommand('featureDesigns.editItem', (node: ModelNode) => this.editItem(node));
-		vscode.commands.registerCommand('featureDesigns.duplicateItem', (node: ModelNode) => this.duplicateItem(node));
-		vscode.commands.registerCommand('featureDesigns.deleteItem', (node: ModelNode) => this.deleteItem(node));
+		vscode.commands.registerCommand('modeling.refresh', (uri) => this.refresh());
+		vscode.commands.registerCommand('modeling.openFile', (uri) => this.openFile(uri));
+		vscode.commands.registerCommand('modeling.addDesign', () => vscode.window.showInformationMessage(`Successfully called add design.`));
+		vscode.commands.registerCommand('modeling.deleteDesign', (design: Model) => vscode.window.showInformationMessage(`Successfully called delete design on ${design.name}.`));
+		vscode.commands.registerCommand('modeling.openInDesigner', () => vscode.window.showInformationMessage(`Successfully called open in designer`));
+		vscode.commands.registerCommand('modeling.editItem', (node: ModelNode) => this.editItem(node));
+		vscode.commands.registerCommand('modeling.duplicateItem', (node: ModelNode) => this.duplicateItem(node));
+		vscode.commands.registerCommand('modeling.deleteItem', (node: ModelNode) => this.deleteItem(node));
 	}
 
 	refresh(): void {
@@ -108,7 +108,7 @@ export class ModelsProvider implements vscode.TreeDataProvider<ModelNode> {
 		this.openFile(vscode.Uri.file(currentModel.fsPath));
 
 		const index = currentModel.entities?.findIndex(x => x.name === designNode.label) ?? 0;
-		// TODO: this is just a hack. Find a way og getting node Position
+		// TODO: this is just a hack. Find a way of getting node Position
         const range = new vscode.Range(new vscode.Position(7 + index * 3, 0), new vscode.Position(7 + index * 3, 0));
 		editor.selection = new vscode.Selection(range.start, range.end);
 
@@ -123,16 +123,16 @@ export class ModelsProvider implements vscode.TreeDataProvider<ModelNode> {
 		);
 	}
 	
-	private duplicateItem(featureDesignNode: ModelNode): void {
-		if (featureDesignNode.id && featureDesignNode.modelId) {
-			this.repository.duplicateItem(featureDesignNode.id, featureDesignNode.modelId);
+	private duplicateItem(modelNode: ModelNode): void {
+		if (modelNode.id && modelNode.modelId) {
+			this.repository.duplicateItem(modelNode.id, modelNode.modelId);
 			this.refresh();
 		}
 	}
 	
-	private deleteItem(featureDesignNode: ModelNode): void {
-		if (featureDesignNode.id && featureDesignNode.modelId) {
-			this.repository.deleteItem(featureDesignNode.id, featureDesignNode.modelId);
+	private deleteItem(modelNode: ModelNode): void {
+		if (modelNode.id && modelNode.modelId) {
+			this.repository.deleteItem(modelNode.id, modelNode.modelId);
 			this.refresh();
 		}
 	}

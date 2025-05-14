@@ -6,6 +6,6 @@ import { CodeTreeRepository } from '../codeTrees/codeTreeRepository';
 export class ModelView {
 	constructor(context: vscode.ExtensionContext) {
 		const treeDataProvider = new ModelsProvider(context, new ModelRepository(), new CodeTreeRepository());
-		context.subscriptions.push(vscode.window.createTreeView('featureDesigns', { treeDataProvider }));
+		context.subscriptions.push(vscode.window.createTreeView('modeling', { treeDataProvider }));
 	}
 }

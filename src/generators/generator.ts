@@ -9,7 +9,7 @@ import { ModelRepository } from '../modeling/modelRepository';
 
 export class Generator {
 
-	constructor(private featureDesignRepository: ModelRepository) {
+	constructor(private modelRepository: ModelRepository) {
 	}
 
   // generate files based on template folder given
@@ -41,7 +41,7 @@ export class Generator {
       });
 
     } else {
-      const model = await this.featureDesignRepository.getModel(codeTreeItem.modelId);
+      const model = await this.modelRepository.getModel(codeTreeItem.modelId);
       if(!model || !model.entities) return;
 
       const item = model?.entities?.find(x => x.name === codeTreeItem.itemName);
