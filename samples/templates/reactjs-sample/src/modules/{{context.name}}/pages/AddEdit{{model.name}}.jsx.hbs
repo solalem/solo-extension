@@ -4,15 +4,15 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 
-import { {{camel model.name}}Service, alertService } from '@/_services';
+import { {{camel entity.name}}Service, alertService } from '@/_services';
 
-function AddEdit{{model.name}}({ history, match }) {
+function AddEdit{{entity.name}}({ history, match }) {
     const { id } = match.params;
     const isAddMode = !id;
     
     // form validation rules 
     const validationSchema = Yup.object().shape({
-{{#each model.properties}}
+{{#each entity.properties}}
         {{camel this.name}}: Yup.string()
             .required('{{this.name}} is required'),
 {{/each}}
@@ -25,46 +25,46 @@ function AddEdit{{model.name}}({ history, match }) {
 
     function onSubmit(data) {
         return isAddMode
-            ? create{{model.name}}(data)
-            : update{{model.name}}(id, data);
+            ? create{{entity.name}}(data)
+            : update{{entity.name}}(id, data);
     }
 
-    function create{{model.name}}(data) {
-        return {{camel model.name}}Service.create(data)
+    function create{{entity.name}}(data) {
+        return {{camel entity.name}}Service.create(data)
             .then(() => {
-                alertService.success('{{model.name}} added', { keepAfterRouteChange: true });
+                alertService.success('{{entity.name}} added', { keepAfterRouteChange: true });
                 history.push('.');
             })
             .catch(alertService.error);
     }
 
-    function update{{model.name}}(id, data) {
-        return {{camel model.name}}Service.update(id, data)
+    function update{{entity.name}}(id, data) {
+        return {{camel entity.name}}Service.update(id, data)
             .then(() => {
-                alertService.success('{{model.name}} updated', { keepAfterRouteChange: true });
+                alertService.success('{{entity.name}} updated', { keepAfterRouteChange: true });
                 history.push('..');
             })
             .catch(alertService.error);
     }
 
-    const [{{camel model.name}}, set{{model.name}}] = useState({});
+    const [{{camel entity.name}}, set{{entity.name}}] = useState({});
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (!isAddMode) {
-            // get {{model.name}} and set form fields
-            {{camel model.name}}Service.getById(id).then({{camel model.name}} => {
+            // get {{entity.name}} and set form fields
+            {{camel entity.name}}Service.getById(id).then({{camel entity.name}} => {
                 const fields = ['name', 'email'];
-                fields.forEach(field => setValue(field, {{camel model.name}}[field]));
-                set{{model.name}}({{camel model.name}});
+                fields.forEach(field => setValue(field, {{camel entity.name}}[field]));
+                set{{entity.name}}({{camel entity.name}});
             });
         }
     }, []);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} onReset={reset}>
-            <h1>{isAddMode ? 'Add {{model.name}}' : 'Edit {{model.name}}'}</h1>
-{{#each model.properties}}
+            <h1>{isAddMode ? 'Add {{entity.name}}' : 'Edit {{entity.name}}'}</h1>
+{{#each entity.properties}}
             <div className="form-row">
                 <div className="form-group col-5">
                     <label>{{this.name}}</label>
@@ -85,4 +85,4 @@ function AddEdit{{model.name}}({ history, match }) {
     );
 }
 
-export { AddEdit{{model.name}} };
+export { AddEdit{{entity.name}} };

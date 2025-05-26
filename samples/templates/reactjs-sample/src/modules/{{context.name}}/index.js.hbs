@@ -7,14 +7,14 @@ import List{{this.name}} from './pages.List{{this.name}}';
 export default {
     routeProps: [
         {
-            key: 'List{{model.name}}',
-            path: '/{{kebab model.name}}',
-            component: List{{model.name}},
+            key: 'List{{entity.name}}',
+            path: '/{{kebab entity.name}}',
+            component: List{{entity.name}},
         },
         {
-            key: 'AddEdit{{model.name}}',
-            path: '/edit-{{kebab model.name}}',
-            component: AddEdit{{model.name}},
+            key: 'AddEdit{{entity.name}}',
+            path: '/edit-{{kebab entity.name}}',
+            component: AddEdit{{entity.name}},
         }
     ],
     name: '{{context.name}}',

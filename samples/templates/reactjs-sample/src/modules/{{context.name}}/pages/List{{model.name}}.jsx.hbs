@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { {{camel model.name}}Service } from '@/_services';
+import { {{camel entity.name}}Service } from '@/_services';
 
-function List{{model.name}}({ match }) {
+function List{{entity.name}}({ match }) {
     const { path } = match;
-    const [list, set{{plural model.name}}] = useState(null);
+    const [list, set{{plural entity.name}}] = useState(null);
 
     useEffect(() => {
-        {{camel model.name}}Service.getAll().then(x => set{{plural model.name}}(x));
+        {{camel entity.name}}Service.getAll().then(x => set{{plural entity.name}}(x));
     }, []);
 
-    function delete{{model.name}}(id) {
-        set{{plural model.name}}(list.map(x => {
+    function delete{{entity.name}}(id) {
+        set{{plural entity.name}}(list.map(x => {
             if (x.id === id) { x.isDeleting = true; }
             return x;
         }));
-        {{camel model.name}}Service.delete(id).then(() => {
-            set{{plural model.name}}(list => list.filter(x => x.id !== id));
+        {{camel entity.name}}Service.delete(id).then(() => {
+            set{{plural entity.name}}(list => list.filter(x => x.id !== id));
         });
     }
 
     return (
         <div>
-            <h1>{{plural model.name}}</h1>
-            <Link to={`${path}/add`} className="btn btn-sm btn-success mb-2">Add {{model.name}}</Link>
+            <h1>{{plural entity.name}}</h1>
+            <Link to={`${path}/add`} className="btn btn-sm btn-success mb-2">Add {{entity.name}}</Link>
             <table className="table table-striped">
                 <thead>
                     <tr>
-{{#each model.properties}}
+{{#each entity.properties}}
                         <th>{{this.name}}</th>
 {{/each}}
                         <th></th>
@@ -37,12 +37,12 @@ function List{{model.name}}({ match }) {
                 <tbody>
                     {list && list.map(i =>
                         <tr key={i.id}>
-{{#each model.properties}}
+{{#each entity.properties}}
                             <td>{i.{{camel this.name}} }</td>
 {{/each}}
                             <td>
                                 <Link to={`${path}/edit/${i.id}`} className="btn btn-sm btn-primary mr-1">Edit</Link>
-                                <button onClick={() => delete{{model.name}}(i.id)} className="btn btn-sm btn-danger" disabled={i.isDeleting}>
+                                <button onClick={() => delete{{entity.name}}(i.id)} className="btn btn-sm btn-danger" disabled={i.isDeleting}>
                                     {i.isDeleting 
                                         ? <span className="spinner-border spinner-border-sm"></span>
                                         : <span>Delete</span>
@@ -61,7 +61,7 @@ function List{{model.name}}({ match }) {
                     {list && !list.length &&
                         <tr>
                             <td colSpan="4" className="text-center">
-                                <div className="p-2">No {{plural model.name}} To Display</div>
+                                <div className="p-2">No {{plural entity.name}} To Display</div>
                             </td>
                         </tr>
                     }
@@ -71,4 +71,4 @@ function List{{model.name}}({ match }) {
     );
 }
 
-export { List{{model.name}} };
+export { List{{entity.name}} };

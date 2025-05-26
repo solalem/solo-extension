@@ -78,7 +78,7 @@ export class Generator {
     const template = handlebars.compile(data.toString());
 
     // execute the compiled template 
-    const output = template({ context: model, model: entity }); 
+    const output = template({ context: model, entity: entity }); 
     if(output) {
       const fsPath = path.join(workspaceDirectory, codeTreeItem.destinationPath);
       const dirname = path.dirname(fsPath);
