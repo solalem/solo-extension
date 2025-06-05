@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as os from "node:os";
 import { _ } from '../fileSystem/fileUtilities';
 import { CodeTree, CodeTreeItem } from './models';
-import { Template, Feature, SoloConfig } from '../models';
+import { Template, Feature, SoloConfig, Implementation } from '../models';
 import { Model } from '../modeling/models';
 import { replacePlaceholders } from '../generators/helpers';
 
@@ -38,12 +38,16 @@ export class CodeTreeRepository {
 		const configPath = path.join(workspaceRoot, "solo.config");
 		if (this.pathExists(configPath)) {
 			const configJson = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-			const features = configJson.features.map((f: { name: string, model: string, implementations: any[] }) => {
-				return new Feature(f.name, f.model, f.implementations);
-			});
-            const templates = configJson.templates
+        
+			const templates = configJson.templates
                 ? Object.keys(configJson.templates).map(b => new Template(b, configJson.templates[b]))
                 : [];
+			const features = configJson.features.map((f: { name: string, model: string, implementations: Implementation[] }) => {
+				return new Feature(f.name, f.model, 
+					f.implementations ?? 
+					templates.map(t => { return { template: t.name, workingDirectory: '.' } }));
+			});
+
 			return Promise.resolve(new SoloConfig(configJson.name, configJson.description, features, templates));
 		} else {
 			vscode.window.showInformationMessage('No config file found');
