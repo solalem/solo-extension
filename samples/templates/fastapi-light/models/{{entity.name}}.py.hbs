@@ -1,0 +1,55 @@
+from datetime import datetime
+from enum import Enum
+from pydantic import Base64Bytes, model_validator
+from sqlmodel import Relationship, SQLModel, Field
+from typing import List, Optional, Self
+
+class {{entity.name}}(SQLModel, table=True):
+    __tablename__ = "{{snake entity.name}}"
+
+    """
+    {{entity.description}}
+
+    Attributes:
+{{#each entity.properties}}
+        {{snake this.name}}: {{snake this.description}}
+{{/each}}
+    """
+    id: Optional[int] = Field(default=None, primary_key=True)
+    organization: int = Field(foreign_key="organization.id", ondelete="CASCADE")
+{{#each entity.properties}}
+    {{#if this.reference}}
+    {{snake this.name}}: {{this.name}} = Field(foreign_key="{{snake this.reference}}.id", index=True)
+    {{else}}
+        {{#if this.array}}    
+    {{snake this.name}}: Optional[List["{{this.type}}"]] = Relationship(back_populates="{{snakes ../entity.name}}")
+        {{else}}
+            {{#if_eq this.type "datetime"}}
+    {{snake this.name}}: {{#unless this.required}}Optional[{{/unless}} datetime {{#unless this.required}}]{{/unless}} = Field(default=None)
+            {{else}}
+                {{#if_eq this.type "int"}}
+    {{snake this.name}}: {{#unless this.required}}Optional[{{/unless}}int{{#unless this.required}}]{{/unless}} = Field(default=0)
+                {{else}}
+    {{snake this.name}}: {{#unless this.required}}Optional[{{/unless}} {{this.type}} {{#unless this.required}}]{{/unless}} = Field(default=None)
+                {{/if_eq}}
+            {{/if_eq}}
+        {{/if}}
+    {{/if}}
+{{/each}}
+
+{{#each entity.properties}}
+    {{#if this.options}}    
+class {{this.type}}(str, Enum):
+    """
+    {{this.description}}
+
+    Members:
+        {{#each this.options}}
+        {{this.label}}: {{this.description}}
+        {{/each}}
+    """
+        {{#each this.options}}
+    {{camel this.label}} = "{{this.label}}"
+        {{/each}}
+    {{/if}}
+{{/each}}

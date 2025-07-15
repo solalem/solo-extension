@@ -37,7 +37,7 @@ Use requirements as your main source. Extract a clear, actionable domain model.
     {
       "name": "Order",
       "aggregate": "Order", // this is the root entity of the aggregate
-      "type": "Entity", // or "ValueObject" or "DomainService"
+      "type": "Entity", 
       "description": "An order from customer",
       "properties": [
         { "name": "Date", "description": "Date of order taken", "type": "DateTime", "required": true },

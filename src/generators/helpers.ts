@@ -10,7 +10,7 @@ export const replacePlaceholders = function (path: string, entity: Entity, model
   encodedPath = encodedPath.replace(/\//g, "forwardslash");
   addHelpers();
   const template = handlebars.compile(encodedPath);
-  let pathProper = template({ context: model, entity: entity });
+  let pathProper = template({ context: model, entity: entity, model: entity });
 
   pathProper = pathProper.replace(/backslash/g, '\\');
   pathProper = pathProper.replace(/forwardslash/g, '/');

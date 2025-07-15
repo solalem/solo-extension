@@ -1,0 +1,260 @@
+from typing import Annotated, Optional
+from db import get_session
+from sqlmodel import Session, select
+from fastapi import APIRouter, HTTPException, Depends
+from db import get_session
+from utils.model_converter_util import get_html_types
+from models.Account import User
+from models.{{entity.name}} import {{entity.name}}
+from models.viewModel.{{entity.name}}View import {{entity.name}}View
+from utils.auth_util import get_current_user, check_permission
+from utils.get_hierarchy import get_organization_ids_by_scope_group
+from utils.form_db_fetch import fetch_point_of_sale_ids_and_names
+from utils.search import get_with_search
+from utils.api_utils import collection_response, error_response, success_response
+from sqlmodel import Session, select
+
+import traceback
+
+{{entity.name}}Router = c = APIRouter()
+SessionDep = Annotated[Session, Depends(get_session)]
+UserDep = Annotated[dict, Depends(get_current_user)]
+
+endpoint_name = "{{kebabs entity.name}}" 
+db_model = {{entity.name}} 
+
+endpoint = {
+    "get": f"/get-{endpoint_name}",
+    "get_by_id": f"/get-{endpoint_name}",
+    "get_form": f"/{endpoint_name}-form/",
+    "create": f"/create-{endpoint_name}",
+    "update": f"/update-{endpoint_name}",
+    "delete": f"/delete-{endpoint_name}",
+}
+
+# Update role_modules
+role_modules = {
+    "get": ["{{entity.name}}"],
+    "get_form": ["{{entity.name}}"],
+    "create": ["{{entity.name}}"],
+    "update": ["{{entity.name}}"],
+    "delete": ["{{entity.name}}"],
+}
+
+@c.get(endpoint['get'])
+def get_{{snakes entity.name}}(
+    session: SessionDep,
+    current_user: UserDep,
+    tenant: str,
+    page: int,
+    pageSize: int,
+    column: Optional[str] = None,
+    searchString: Optional[str] = None
+):
+    try:  
+        if not check_permission(session, "Read", role_modules['get'], current_user):
+            return error_response("You do not have the required privilege")
+
+        organization_ids = get_organization_ids_by_scope_group(session, current_user)
+        
+        all_entry, totalItems = get_with_search(session, organization_ids, db_model, column, searchString, page, pageSize)
+        if not all_entry:
+            return error_response(f"{endpoint_name} not found")
+
+        filtered_data = []   
+        for item in all_entry:
+            filtered_data.append({ 
+                    'id': item.id,
+{{#each entity.properties}}
+    {{#unless this.array}}    
+        {{#if_eq this.type "datetime"}}
+                    '{{snake this.name}}': item.{{snake this.name}}.strftime('%d-%m-%Y'),
+        {{else}}
+                    '{{snake this.name}}': item.{{snake this.name}},
+        {{/if_eq}}
+    {{/unless}}    
+{{/each}}
+                })
+         
+        return collection_response(page, pageSize, searchString, totalItems, filtered_data)
+
+    except Exception as e:
+        traceback.print_exc ()              
+        return error_response("Something went wrong")
+
+@c.get(endpoint['get_by_id'] + "/{id}")
+def get_{{snake entity.name}}_by_id(
+    session: SessionDep,
+    current_user: UserDep,
+    tenant: str,
+    id: int
+):
+    try:
+        if not check_permission(session, "Read", role_modules['get'], current_user):
+            return error_response("You do not have the required privilege")
+
+        organization_ids = get_organization_ids_by_scope_group(session, current_user)
+        entry = session.exec(
+            select(db_model).where(db_model.organization.in_(organization_ids), db_model.id == id)
+        ).first()
+
+        if not entry:
+            return error_response(f"{endpoint_name} not found")
+        
+        {{camel entity.name}} = {
+                    'id': entry.id,
+{{#each entity.properties}}
+    {{#unless this.array}}    
+        {{#if_eq this.type "datetime"}}
+                    '{{snake this.name}}': entry.{{snake this.name}}.strftime('%d-%m-%Y'),
+        {{else}}
+                    '{{snake this.name}}': entry.{{snake this.name}},
+        {{/if_eq}}
+    {{/unless}}    
+{{/each}}
+                }
+
+        return success_response(f"{endpoint_name} found", {{camel entity.name}})
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception:
+        traceback.print_exc()
+        return error_response("Something went wrong")
+
+@c.get("/search")
+def search_{{snake entity.name}}_form(
+    tenant: str,
+    session: SessionDep,
+    current_user: UserDep,
+):
+    try:
+        if not check_permission(
+            session, "Create", role_modules['get_form'], current_user):
+            return error_response("You do not have the required privilege")
+        
+        return success_response("Search columns retrieved", ["status"])
+
+    except Exception as e:
+        traceback.print_exc()
+        return error_response("Something went wrong")
+    
+@c.get(endpoint["get_form"])
+def get_form_fields_for_{{snake entity.name}}(
+    session: SessionDep, current_user: UserDep, tenant:str,
+):
+    try:
+        if not check_permission(
+            session, "Create",role_modules['get_form'], current_user):
+            return error_response("You do not have the required privilege")
+        
+        route_data = {
+            "id": "",
+{{#each entity.properties}}
+    {{#unless this.array}}
+        {{#if this.reference}}
+            '{{snake this.name}}': fetch_{{snakes this.name}}_ids_and_names(session, current_user),
+        {{else}}
+            '{{snake this.name}}': '',
+        {{/if}}
+    {{/unless}}    
+{{/each}}
+            # 'status': {i.value: i.value for i in {{entity.name}}Status},
+        }
+        
+        return { "data": route_data, "html_types": get_html_types("{{snake entity.name}}") }
+    except Exception as e:
+        traceback.print_exc()
+        return error_response("Something went wrong")
+
+@c.post(endpoint['create'])
+def create_{{snake entity.name}}(
+    session: SessionDep,
+    tenant: str,
+    current_user: UserDep,
+    valid: {{entity.name}}View
+):
+    try:
+        new_entry = db_model.model_validate(
+            {
+                'organization': current_user.organization,
+{{#each entity.properties}}
+    {{#unless this.array}}
+                '{{snake this.name}}': valid.{{snake this.name}},
+    {{/unless}}    
+{{/each}}
+            }
+        )
+
+        session.add(new_entry)
+        session.commit()
+        session.refresh(new_entry)
+
+        return success_response(f"{endpoint_name} creted successfully", new_entry)
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception:
+        traceback.print_exc()
+        return error_response("Something went wrong")
+
+@c.put(endpoint['update']+"/{id}")
+def update_{{snake entity.name}}(
+    session: SessionDep,
+    tenant: str,
+    id: int,
+    current_user: UserDep,
+    valid: {{entity.name}}View
+):
+    try:
+        if not check_permission(session, "Update", role_modules['update'], current_user):
+            return error_response("You do not have the required privilege")
+   
+        entry = session.get(db_model, id)
+        if not entry:
+            return error_response(f"{endpoint_name} not found")
+
+        # Update fields
+{{#each entity.properties}}
+    {{#unless this.array}}
+        entry.{{snake this.name}} = valid.{{snake this.name}}
+    {{/unless}}    
+{{/each}}
+
+        session.add(entry)
+        session.commit()
+        session.refresh(entry)
+
+        return success_response(f"{endpoint_name} updated sucessfuly", entry)
+        
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception:
+        traceback.print_exc()
+        return error_response("Something went wrong")
+
+
+@c.delete(endpoint['delete'] + "/{id}")
+def delete_{{snake entity.name}}(
+    session: SessionDep,
+    tenant: str,
+    current_user: UserDep,
+    id: int
+):
+    try:
+        if not check_permission(session, "Delete", role_modules['delete'], current_user):
+            return error_response("You do not have the required privilege")
+        
+        entry = session.get(db_model, id)
+        if not entry:
+            return error_response(f"{endpoint_name} not found")
+
+        session.delete(entry)
+        session.commit()
+
+        return success_response(f"{endpoint_name} deleted sucessfully", None)
+
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception:
+        traceback.print_exc()
+        return error_response("Something went wrong")

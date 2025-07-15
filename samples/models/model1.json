@@ -2,7 +2,6 @@
   "id": "model1.json",
   "name": "Feature1",
   "description": "test1",
-  "solution": "SoloTest",
   "context": "Feature1",
   "entities": [
     {
@@ -19,7 +18,11 @@
         {
           "name": "Status",
           "description": "Status",
-          "type": "int"
+          "type": "OrderStatus",
+          "options": [
+            { "label": "Pending", "description": "Pending", "value": 1 },
+            { "label": "Closed", "description": "Closed", "value": 2 }
+          ]
         },
         {
           "name": "OrderLines",
