@@ -1,8 +1,7 @@
 {
-  "id": "model1.json",
   "name": "Feature1",
   "description": "test1",
-  "context": "Feature1",
+  "module": "Module1",
   "entities": [
     {
       "name": "Order",

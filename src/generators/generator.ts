@@ -41,7 +41,7 @@ export class Generator {
       });
 
     } else {
-      const model = await this.modelRepository.getModel(codeTreeItem.modelId);
+      const model = await this.modelRepository.getModelByFilename(codeTreeItem.modelPath);
       if(!model || !model.entities) return;
 
       const item = model?.entities?.find(x => x.name === codeTreeItem.itemName);
@@ -58,6 +58,7 @@ export class Generator {
     entity: Entity, 
     model: Model, 
     callback: any): string | undefined {
+      callback(`Generating. ${codeTreeItem.templatePath} for ${codeTreeItem.destinationPath}`);   
 
     const templateFile = path.join(templateDirectory, codeTreeItem.templatePath);
 

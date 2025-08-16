@@ -139,13 +139,22 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 		}
 
 		const treeItem = node.tag as CodeTreeItem;
-		if(!treeItem) return;
+		if(!treeItem) {
+			vscode.window.showErrorMessage('No item found in the tree');
+			return;
+		}
 
-		const design = await this.modelRepository.getModel(treeItem.modelId);
-		if(!design || !design.entities) return;
+		const design = await this.modelRepository.getModelByFilename(treeItem.modelPath);
+		if (!design?.entities || design.entities.length === 0) {
+			vscode.window.showErrorMessage(`No model or entities found in ${treeItem.modelPath}`);
+			return;
+		}
 
 		const item = design?.entities?.find(x => x.name === treeItem.itemName);
-		if(!item) return;
+		if(!item) {
+			vscode.window.showErrorMessage(`No item found in the model ${treeItem.modelPath} with name ${treeItem.itemName}`);
+			return;
+		}
 	
 		let destinationFolder = workspaceFolder.uri.fsPath;
 		if(isPreview) 
@@ -153,7 +162,7 @@ export class CodeTreeProvider implements vscode.TreeDataProvider<CodeTreeNode> {
 
 		this.soloOutputChannel.appendLine(`Workspace: ${destinationFolder}`);
 		this.soloOutputChannel.appendLine(`Templates loacation: ${this.templatesDirectory}`);
-		this.soloOutputChannel.appendLine(`Model path: ${treeItem.modelId}`);
+		this.soloOutputChannel.appendLine(`Model path: ${treeItem.modelPath}`);
 
 		const generator = new Generator(this.modelRepository);
 		generator.generateNode(

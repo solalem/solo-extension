@@ -20,11 +20,6 @@ export class Feature {
 	) {
 	}
 
-	getModelId(): string {
-		const fileName = this.getModelFileName();
-		return fileName.endsWith('.json') ? fileName.slice(0, -5) : fileName;
-	}
-
     getModelFileName(): string {
         const fileName = path.basename(this.model);
         return fileName.endsWith('.json') ? fileName : fileName + ".json";

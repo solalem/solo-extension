@@ -1,16 +1,20 @@
+import path = require("node:path");
+
 export class Model {
 
 	constructor(
-		public id: string,
 		public name: string,
 		public description: string,
+		public module: string,
 		public fsPath: string,
 		public entities: Entity[] | undefined
 	) {
 	}
 
-	// For backward compatibility with old templates
-	public models = this.entities;
+    getModelFileName(): string {
+        const fileName = path.basename(this.name);
+        return fileName.endsWith('.json') ? fileName : fileName + ".json";
+    }
 }
 
 export class Entity {

@@ -25,32 +25,32 @@ export class ModelRepository {
 			.map((feature) => {
 				const fsPath = path.join(modelsPath, feature.getModelFileName());
                 const model: Model = JSON.parse(fs.readFileSync(fsPath, 'utf-8'));
-				model.id = feature.getModelId();
+				//model.name = feature.name;
 				model.fsPath = fsPath;
 				return model;
 			});
 	}
 	
-	public async getModel(designId: string): Promise<Model | undefined> {
-		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-		if (!workspaceRoot) {
-			vscode.window.showInformationMessage('Empty workspace');
-			return Promise.resolve(undefined);
-		}
+	public async getModelByFilename(modelFilename: string): Promise<Model | undefined> {
+		// const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+		// 	? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+		// if (!workspaceRoot) {
+		// 	vscode.window.showInformationMessage('Empty workspace');
+		// 	return Promise.resolve(undefined);
+		// }
 
-		const modelsPath = path.join(workspaceRoot, "models");
-		if (!_.exists(modelsPath)) {
-			vscode.window.showInformationMessage('No modules folder');
-			return Promise.resolve(undefined);
-		}
-		let fsPath = path.join(modelsPath, designId);
-		if (!fsPath.endsWith('.json')) 
-			fsPath += '.json';
+		// const modelsPath = path.join(workspaceRoot, "models");
+		// if (!_.exists(modelsPath)) {
+		// 	vscode.window.showInformationMessage('No models folder');
+		// 	return Promise.resolve(undefined);
+		// }
+		let fsPath = modelFilename;// path.join(modelsPath, modelFilename);
+		// if (!fsPath.endsWith('.json')) 
+		// 	fsPath += '.json';
 
 		if (this.pathExists(fsPath)) {
 			const designJson: Model = JSON.parse(fs.readFileSync(fsPath, 'utf-8'));
-			designJson.id = designId;
+			//designJson.name = model;
 			designJson.fsPath = fsPath;
 			return Promise.resolve(designJson);
 		} else {
@@ -59,20 +59,20 @@ export class ModelRepository {
 	}
 		
 	public async saveModel(design: Model): Promise<Model | undefined> {
-		const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-			? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-		if (!workspaceRoot) {
-			vscode.window.showInformationMessage('Empty workspace');
-			return Promise.resolve(undefined);
-		}
+		// const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+		// 	? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+		// if (!workspaceRoot) {
+		// 	vscode.window.showInformationMessage('Empty workspace');
+		// 	return Promise.resolve(undefined);
+		// }
 
-		const modelsPath = path.join(workspaceRoot, "models");
-		if (!_.exists(modelsPath)) {
-			vscode.window.showInformationMessage('No modules folder');
-			return Promise.resolve(undefined);
-		}
+		// const modelsPath = path.join(workspaceRoot, "models");
+		// if (!_.exists(modelsPath)) {
+		// 	vscode.window.showInformationMessage('No modules folder');
+		// 	return Promise.resolve(undefined);
+		// }
 
-		const fsPath = path.join(modelsPath, design.id);
+		const fsPath = design.fsPath;// path.join(modelsPath, design.getModelFileName());
 
 		if (this.pathExists(fsPath)) {
 			fs.writeFileSync(fsPath, JSON.stringify(design, function(key, val) {
@@ -85,8 +85,8 @@ export class ModelRepository {
 		}
 	}
 	
-	public async duplicateItem(name: string, modelId : string) {
-		const model = await this.getModel(modelId);
+	public async duplicateItem(name: string, modelFilename: string) {
+		const model = await this.getModelByFilename(modelFilename);
 
 		if(model) {
 			const entity = model.entities?.find(x => x.name === name);
@@ -97,8 +97,8 @@ export class ModelRepository {
 		}
 	}
 
-	public async deleteItem(name: string, modelId : string) {
-		const model = await this.getModel(modelId);
+	public async deleteItem(name: string, modelFilename: string) {
+		const model = await this.getModelByFilename(modelFilename);
 
 		if(model && model.entities) {
 			const index = model.entities.findIndex(x => x.name === name);

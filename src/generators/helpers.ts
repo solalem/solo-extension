@@ -41,7 +41,7 @@ export const addHelpers = function() {
   })
   
   function kebabCase(aString: String) {
-    return aString?.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x => x.toLowerCase()).join('-');
+    return aString?.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x => x?.toLowerCase()).join('-');
   }
   handlebars.registerHelper("kebab", function (aString) {
     return kebabCase(aString);
@@ -51,7 +51,7 @@ export const addHelpers = function() {
   })
   
   function snakeCase(aString: String) {
-    return aString?.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x => x.toLowerCase()).join('_');
+    return aString?.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x => x?.toLowerCase()).join('_');
   }
   handlebars.registerHelper("snake", function (aString) {
     return snakeCase(aString);
@@ -110,7 +110,37 @@ export const addHelpers = function() {
     return aString && aString
       .replace(/[-_\s]+/g, ' ') // Replace underscores, hyphens, and spaces with spaces
       .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
-      .map(word => word.charAt(0).toUpperCase() + ' ' + word.slice(1).toLowerCase())
-      .join('');
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   }
+
+  handlebars.registerHelper('children', function (typeName, options) {
+    const isBlockHelper = typeof options === 'object' && options.fn;
+
+    // Access entities from the root context
+    const ctx = options.data?.root || this;
+    const entities = ctx?.context?.entities || ctx?.entities;
+
+    if (!entities || !Array.isArray(entities)) {
+      console.error('Available context:', ctx);
+      if (isBlockHelper) {
+        return options.inverse(this);
+      }
+      throw new Error(`Models array not found while looking for: ${typeName}`);
+    }
+
+    const entity = entities.find(m => m.name === typeName);
+    if (!entity) {
+      console.warn(`Child entity not found: ${typeName}`);
+      if (isBlockHelper) {
+        return options.inverse(this);
+      }
+      return null;
+    }
+
+    if (isBlockHelper) {
+      return options.fn(entity);
+    }
+    return entity;
+  });
 };

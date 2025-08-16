@@ -68,12 +68,12 @@ export class CodeTreeRepository {
 			}
 		}
 
-		// for each feature provided built tree without repeating nodes
+		// for each feature provided build tree without repeating nodes
 		config.features?.forEach(feature => {
 			// Read the model of this feature
-			const model = models.find(x => x.id === feature.getModelId());
+			const model = models.find(x => feature.getModelFileName().endsWith(path.basename(x.fsPath)));
 			if(model === undefined) {
-				vscode.window.showErrorMessage('No model found: '+ feature.name);
+				vscode.window.showErrorMessage('No model found: '+ feature.model);
 				return;
 			}
 
@@ -124,7 +124,7 @@ export class CodeTreeRepository {
 					// eslint-disable-next-line @typescript-eslint/no-empty-function
 					replacePlaceholders(childTemplate, item, model, () => { }),
 					path.join(template.name, childTemplate),
-					model.id,
+					model.fsPath,
 					item.name,
 					children));
 			});

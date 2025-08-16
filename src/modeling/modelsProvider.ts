@@ -52,15 +52,15 @@ export class ModelsProvider implements vscode.TreeDataProvider<ModelNode> {
 			this.models = await this.repository.getModels(config);
 			return this.models.map((i) => (
 					new ModelNode(
-						i.id,
-						i.name,
+						i.name + " (D)",
+						i.name + " (D)",
 						"design",
-						i.id,
+						i.name,
 						i.fsPath)
 				));
 		}
 
-		const currentModel = this.models.find(x => x.id === designNode.modelId);
+		const currentModel = this.models.find(x => x.name === designNode.modelName);
 		if (!currentModel|| !currentModel.entities)
 			return Promise.resolve([]);
 
@@ -69,22 +69,22 @@ export class ModelsProvider implements vscode.TreeDataProvider<ModelNode> {
 				.filter(i => i.aggregate === i.name)
 				.map((i) => (
 					new ModelNode(
-						i.name + " (aggregate)",
-						i.name,
+						i.name + " (A)",
+						i.name + " (A)",
 						"aggregate",
-						currentModel.id,
+						currentModel.name,
 						undefined)
 				));
 		}
 		else if (designNode.type === 'aggregate') { // entities in the aggregate
 			return currentModel.entities
-				.filter(i => i.aggregate+ " (aggregate)" === designNode.id)
+				.filter(i => i.aggregate + " (A)" === designNode.id)
 				.map((i) => (
 					new ModelNode(
-						i.name,
-						i.name,
+						i.name + " (E)",
+						i.name + " (E)",
 						"item",
-						currentModel.id,
+						currentModel.name,
 						undefined)
 				));
 		}
@@ -101,7 +101,7 @@ export class ModelsProvider implements vscode.TreeDataProvider<ModelNode> {
 		const editor = vscode.window.activeTextEditor;
 		if(!editor) return null;
 
-		const currentModel = this.models.find(x => x.id === designNode.modelId);
+		const currentModel = this.models.find(x => x.name === designNode.modelName);
 		if (!currentModel|| !currentModel.entities)
 			return Promise.resolve([]);
 
@@ -124,15 +124,15 @@ export class ModelsProvider implements vscode.TreeDataProvider<ModelNode> {
 	}
 	
 	private duplicateItem(modelNode: ModelNode): void {
-		if (modelNode.id && modelNode.modelId) {
-			this.repository.duplicateItem(modelNode.id, modelNode.modelId);
+		if (modelNode.id && modelNode.modelName) {
+			this.repository.duplicateItem(modelNode.id, modelNode.modelName);
 			this.refresh();
 		}
 	}
 	
 	private deleteItem(modelNode: ModelNode): void {
-		if (modelNode.id && modelNode.modelId) {
-			this.repository.deleteItem(modelNode.id, modelNode.modelId);
+		if (modelNode.id && modelNode.modelName) {
+			this.repository.deleteItem(modelNode.id, modelNode.fsPath);
 			this.refresh();
 		}
 	}

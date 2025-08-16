@@ -1,0 +1,30 @@
+{{#each context.entities}}
+{{#if_eq this.name this.aggregate}}
+{{../context.subsystem}},{{../context.module}},Create {{camel this.name}} with valid data,TNT_001,Valid {{title this.name}} Creation,To verify that a user can successfully create a {{camel this.name}} with valid input,Authenticated and authorized user,"1. Navigate to {{camel this.name}} creation form 
+ 2. Fill all valid fields 
+ 3. Click Save","{{#each this.properties}}{{#unless this.array}} {{title this.name}}: Test {{title this.name}}
+{{/unless}}{{/each}}",{{title this.name}} is saved and confirmation message is displayed,NA,NA
+{{../context.subsystem}},{{../context.module}},Update {{camel this.name}} with valid data,TNT_002,Valid {{title this.name}} Information Updated,To verify that a user can successfully update {{camel this.name}} details with valid input,Authenticated and authorized user,"1. Navigate to {{camel this.name}} update form 
+ 2. Fill all valid fields 
+ 3. Click Save","{{#each this.properties}}{{#unless this.array}} {{title this.name}}: Updated {{title this.name}}
+{{/unless}}{{/each}}",{{title this.name}} is saved and confirmation message is displayed,NA,NA
+{{../context.subsystem}},{{../context.module}},Delete existing {{camel this.name}},TNT_003,{{title this.name}} Removed,To verify that a user can successfully remove {{camel this.name}},Authenticated and authorized user,"1. Navigate to {{camel this.name}} list page 
+ 2. Select {{camel this.name}} to delete  
+ 3. Click Delete",N/A,{{title this.name}} is deleted and confirmation message is displayed,NA,NA
+{{#each this.properties}}
+{{#if this.array}}
+{{../../context.subsystem}},{{../../context.module}},Add new {{title this.type}} to {{camel ../this.name}} with valid data,TNT_004,Valid {{title this.type}} Added,To verify that a user can successfully add {{title this.type}} details with valid input,Authenticated and authorized user,"1. Navigate to {{title this.type}} adding form 
+ 2. Fill all valid fields 
+ 3. Click Save","{{#with (children this.type)}}{{#each this.properties}}{{#unless this.array}} {{title this.name}}: Test {{title this.name}}
+{{/unless}}{{/each}}{{/with}}",{{title this.type}} is saved and confirmation message is displayed,NA,NA
+{{../../context.subsystem}},{{../../context.module}},Update existing {{title this.type}} with valid data,TNT_005,Valid {{title this.type}} Updated Information,To verify that a user can successfully update {{title this.type}} details with valid input,Authenticated and authorized user,"1. Navigate to {{title this.type}} editing form 
+ 2. Fill all valid fields 
+ 3. Click Save","{{#with (children this.type)}}{{#each this.properties}}{{#unless this.array}} {{title this.name}}: Test {{title this.name}}
+{{/unless}}{{/each}}{{/with}}",{{title this.type}} is updated and confirmation message is displayed,NA,NA
+{{../../context.subsystem}},{{../../context.module}},Remove {{title this.type}} from {{camel ../this.name}},TNT_006,{{title this.type}} Removed,To verify that a user can successfully remove {{title this.type}} from {{camel ../this.name}},Authenticated and authorized user,"1. Navigate to {{title this.type}} list form 
+ 2. Select {{title this.type}} to remove 
+ 3. Click Remove",NA,{{title this.type}} is removed and confirmation message is displayed,NA,NA
+{{/if}}
+{{/each}}
+{{/if_eq}}
+{{/each}}

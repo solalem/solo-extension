@@ -17,7 +17,7 @@ export class CodeTreeItem {
 		public description: string,
 		public destinationPath: string,
 		public templatePath: string,
-		public modelId: string,
+		public modelPath: string,
 		public itemName: string,
 		public children: CodeTreeItem[]
 	) {
